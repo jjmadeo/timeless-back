@@ -22,8 +22,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./volumenes/mariadb_data:/var/lib/mysql
-      - /d/volumenes/initDB.sql:/docker-entrypoint-initdb.d/1.sql   # Montar el directorio con los archivos SQL
+      - C:/volumenes/mariadb_data:/var/lib/mysql
+      - C:/volumenes:/docker-entrypoint-initdb.d/1.sql   # Montar el directorio con los archivos SQL
 
 volumes:
   mariadb_data:
