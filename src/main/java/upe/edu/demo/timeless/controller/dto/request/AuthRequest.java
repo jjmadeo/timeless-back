@@ -1,14 +1,17 @@
 package upe.edu.demo.timeless.controller.dto.request;
 
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
+
+@Data
+@ToString
 public class AuthRequest {
-    private String username;
-    private String password;
+    private String correo;
+    private String clave;
 
     // Getters y Setters
 }

@@ -30,7 +30,10 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/v1/timeless/authenticate", "/v1/timeless/refresh-token","/v1/timeless/register").permitAll()
+                    .requestMatchers("/v1/timeless/authenticate", "/v1/timeless/refresh-token","/v1/timeless/register","/swagger**","/v3/api-docs/**","/swagger-ui/**","/swagger-ui")
+
+
+                    .permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

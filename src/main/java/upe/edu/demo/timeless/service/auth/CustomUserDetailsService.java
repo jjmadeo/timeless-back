@@ -1,20 +1,20 @@
 package upe.edu.demo.timeless.service.auth;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import upe.edu.demo.timeless.model.Usuario;
-import upe.edu.demo.timeless.repository.UsuarioRepository;
 import upe.edu.demo.timeless.service.UsuarioService;
 
 import java.util.Collections;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
 
@@ -26,16 +26,19 @@ public class CustomUserDetailsService implements UserDetailsService {
         Usuario usuario = usuarioService.findByUsername(username);
 
 
-
-        return User.builder()
-                .username(usuario.getUsername())
-                .password(usuario.getPassword())
-                .disabled(false)
+        User user = (User) User.builder()
+                .username(usuario.getCorreo())
+                .password(usuario.getClave())
+                .disabled(!usuario.isHabilitado())
+                .roles(usuario.getTipoUsuario().getDetalle())
                 .accountExpired(false)
                 .credentialsExpired(false)
                 .accountLocked(false)
-                .authorities(Collections.emptyList())
                 .build();
+
+            log.info("Usuario autenticado: {}", user);
+        return user;
+
     }
 
 
