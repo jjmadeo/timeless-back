@@ -1,10 +1,7 @@
 package upe.edu.demo.timeless.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -12,6 +9,7 @@ import java.util.Objects;
 @Data
 @ToString
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "Domicilio_Fiscal", schema = "TimeLess", catalog = "")
 public class DomicilioFiscal {

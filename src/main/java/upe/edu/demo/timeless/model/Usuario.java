@@ -9,10 +9,12 @@ import java.util.Collection;
 
 @AllArgsConstructor
 @Data
+
 @ToString
 @NoArgsConstructor
 @Builder
 @Entity
+
 public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

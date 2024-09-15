@@ -1,25 +1,27 @@
 package upe.edu.demo.timeless.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 @Data
 @ToString
 @NoArgsConstructor
 @Entity
+@Builder
 public class Empresa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
+    @CreationTimestamp
     @Column(name = "fh_creacion", nullable = false)
     private Timestamp fhCreacion;
 
@@ -32,14 +34,39 @@ public class Empresa {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fk_membresia", referencedColumnName = "id", nullable = false)
     private Membresia membresia;
-    @OneToOne(mappedBy = "empresa",cascade = CascadeType.PERSIST)
-    private LineaAtencion lineaAtencion;
-    @OneToMany(mappedBy = "fkEmpresa",cascade = CascadeType.PERSIST)
-    private Collection<ParametrizacionEmpresa> parametrizaciones;
+    @OneToMany(mappedBy = "empresa",cascade = CascadeType.PERSIST)
+    private List<LineaAtencion> lineaAtencion;
+
+    @OneToMany(mappedBy = "empresa",cascade = CascadeType.PERSIST)
+    private List<ParametrizacionEmpresa> parametrizaciones;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fk_calendario", referencedColumnName = "id", nullable = false)
     private Calendario calendario;
+
+
+
+    public void addParametro(ParametrizacionEmpresa param){
+
+        if (this.parametrizaciones == null) {
+            this.parametrizaciones = new ArrayList<>();
+        }
+
+
+        this.parametrizaciones.add(param);
+        param.setEmpresa(this);
+    }
+
+    public void addLineaAtencion(LineaAtencion lineaAtencion) {
+
+        if (this.lineaAtencion == null) {
+            this.lineaAtencion = new ArrayList<>();
+        }
+
+        this.lineaAtencion.add(lineaAtencion);
+        lineaAtencion.setEmpresa(this);
+    }
+
 
 
 }

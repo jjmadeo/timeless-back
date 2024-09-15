@@ -22,6 +22,8 @@ public class RegisterRequest {
     private String correo;
     private String clave;
 
+    private String tipoUsuario;
+
     private DatosPersonalesRequest datosPersonales;
 
     private DomicilioRequest domicilio;

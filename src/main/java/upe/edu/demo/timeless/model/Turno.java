@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 @ToString
 @NoArgsConstructor
 @Entity
+@Table(name = "Turnos", schema = "TimeLess", catalog = "")
 public class Turno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

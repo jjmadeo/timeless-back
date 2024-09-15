@@ -81,6 +81,10 @@ public class UsuarioService {
 
             return ResponseEntity.ok(RegisterResponse.builder().message("Usuario creado con exito").id(userCreated.getId()).build());
 
+
+
+
+
         } catch (Exception e) {
             log.error("Error al crear usuario", e);
             return ResponseEntity.badRequest().body(RegisterResponse.builder().message("Error al crear usuario").build());
@@ -111,6 +115,7 @@ public class UsuarioService {
 
 
     public UsuarioResponse mapToUserResponse(Usuario usuario) {
+
         return UsuarioResponse.builder()
                 .id((long) usuario.getId())
                 .correo(usuario.getCorreo())

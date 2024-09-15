@@ -17,5 +17,5 @@ public class MultiEntityResponse<T> {
   private List<T> data;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private java.lang.Error error;
+  private Error error;
 }
