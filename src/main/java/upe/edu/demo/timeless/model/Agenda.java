@@ -17,10 +17,16 @@ public class Agenda {
     @Column(name = "id", nullable = false)
     private int id;
 
+    @ToString.Exclude
     @OneToOne
     @JoinColumn(name = "fk_linea_atencion", referencedColumnName = "id")
     private LineaAtencion lineaAtencion;
     @OneToMany(mappedBy = "agenda" ,cascade = CascadeType.PERSIST)
     private Collection<Turno> turnos;
+
+
+
+
+
 
 }

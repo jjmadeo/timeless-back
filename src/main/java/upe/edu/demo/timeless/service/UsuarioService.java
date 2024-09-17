@@ -13,6 +13,7 @@ import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
 import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
 import upe.edu.demo.timeless.repository.UsuarioRepository;
+import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.TipoDniEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
@@ -143,6 +144,7 @@ public class UsuarioService {
                         .sms(usuario.getConfigUsuarioGeneral().isSms())
                         .wpp(usuario.getConfigUsuarioGeneral().isWpp())
                         .build())
+                .idEmpresa(usuario.getEmpresas() != null && !usuario.getEmpresas().isEmpty() ? usuario.getEmpresas().get(0).getId() : null)
                 .build();
 
 
@@ -200,5 +202,12 @@ public class UsuarioService {
 
 
         return null;
+    }
+
+    public ResponseEntity<UsuarioResponse> getProfile() {
+
+        Usuario usuario = usuarioRepository.findByCorreo(Utils.getUserEmail()).orElseThrow();
+
+        return ResponseEntity.ok(mapToUserResponse(usuario));
     }
 }

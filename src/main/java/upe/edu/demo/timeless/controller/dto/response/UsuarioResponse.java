@@ -30,5 +30,7 @@ public class UsuarioResponse {
 
     private ConfigUsuarioGeneralResponse configUsuarioGeneral;
 
+    private Integer idEmpresa;
+
 
 }

@@ -18,13 +18,15 @@ CREATE TABLE `TimeLess`.`Usuario` (
 );
 CREATE TABLE `TimeLess`.`Turnos` (
                                      `id` int NOT NULL AUTO_INCREMENT,
+                                     `uuid` varchar(36) NOT NULL,
                                      `fk_agenda` int NOT NULL,
                                      `fk_estado_turno` int NOT NULL,
                                      `fk_medio_págos` int NOT NULL,
                                      `fk_usuario` int ,
-                                     `fh_reserva` datetime NOT NULL,
+                                     `fh_reserva` datetime,
                                      `fh_inicio` datetime NOT NULL,
                                      `fh_fin` datetime NOT NULL,
+                                     `lokedTime` TIME,
                                      `locked` TINYINT NOT NULL default false,
                                      PRIMARY KEY (`id`)
 );
