@@ -3,12 +3,14 @@ package upe.edu.demo.timeless.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.controller.dto.request.RegisterRequest;
 import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.*;
+import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
 import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
@@ -46,7 +48,9 @@ public class UsuarioService {
         try {
 
 
-            TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(String.valueOf(TipoUsuarioEnum.GENERAL)).orElseThrow();
+            TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(registerRequest.getTipoUsuario()).orElseThrow();
+
+
             TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(registerRequest.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow();
 
 
@@ -167,7 +171,18 @@ public class UsuarioService {
 
         log.info("{}", user);
 
+
+
+
         Usuario usuario = usuarioRepository.findById(Math.toIntExact(id)).orElseThrow();
+
+        if (!usuario.getCorreo().equals(Utils.getUserEmail())) {
+
+
+            return ResponseEntity.badRequest().body(GenericResponse.<UsuarioResponse>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("solo se le permite modificar sus datos.").code("400").build()).build());
+
+        }
+
 
         TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(user.getTipoUsuario()).orElseThrow(()-> new RuntimeException("Tipo de usuario no encontrado"));
         TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(user.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow(()-> new RuntimeException("Tipo de Documento no encontrado"));

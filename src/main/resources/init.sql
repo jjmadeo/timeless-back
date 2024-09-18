@@ -242,9 +242,11 @@ CREATE TABLE `TimeLess`.`Estado_Turno` (
                                            PRIMARY KEY (`id`)
 );
 
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Reservado');
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Cancelado');
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Reprogramado');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('OTORGADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('GENERADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('PRE_SELECCIONADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('CANCELADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('ELIMINADO');
 
 ALTER TABLE `TimeLess`.`Linea_Atencion` ADD FOREIGN KEY (`fk_rubro`) REFERENCES `TimeLess`.`Rubro` (`id`);
 ALTER TABLE `TimeLess`.`Ausencias` ADD FOREIGN KEY (`fk_calendario`) REFERENCES `TimeLess`.`Calendario` (`id`);
