@@ -13,8 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import upe.edu.demo.timeless.service.auth.CustomUserDetailsService;
 import upe.edu.demo.timeless.shared.shared.filter.JwtRequestFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -48,7 +53,21 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  @Bean
+  public CorsFilter corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
 
+    // Permitir todos los orígenes usando patrones
+    config.setAllowedOriginPatterns(List.of("*")); // Permitir todos los orígenes
+    config.setAllowedHeaders(List.of("*")); // Permitir todos los encabezados
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Permitir todos los métodos HTTP
+
+
+    source.registerCorsConfiguration("/**", config); // Aplicar configuración a todos los endpoints
+    return new CorsFilter(source);
+  }
 
 
   @Bean
