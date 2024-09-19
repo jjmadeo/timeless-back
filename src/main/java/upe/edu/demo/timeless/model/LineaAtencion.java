@@ -1,15 +1,13 @@
 package upe.edu.demo.timeless.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @AllArgsConstructor
 @Data
 @ToString
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "Linea_Atencion", schema = "TimeLess", catalog = "")
 public class LineaAtencion {
@@ -29,7 +27,9 @@ public class LineaAtencion {
     private boolean habilitado;
     @OneToOne(mappedBy = "lineaAtencion",cascade = CascadeType.PERSIST)
     private Agenda agenda;
-    @OneToOne(cascade = CascadeType.PERSIST)
+
+    @ToString.Exclude
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fk_empresa", referencedColumnName = "id", nullable = false)
     private Empresa empresa;
 
@@ -37,5 +37,11 @@ public class LineaAtencion {
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fk_rubro", referencedColumnName = "id", nullable = false)
     private Rubro rubro;
+
+
+    public void addAgenda(Agenda agenda) {
+        this.agenda = agenda;
+        agenda.setLineaAtencion(this);
+    }
 
 }

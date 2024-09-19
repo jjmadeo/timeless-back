@@ -3,16 +3,19 @@ package upe.edu.demo.timeless.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.controller.dto.request.RegisterRequest;
 import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.*;
+import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
 import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
 import upe.edu.demo.timeless.repository.UsuarioRepository;
+import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.TipoDniEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
@@ -45,7 +48,9 @@ public class UsuarioService {
         try {
 
 
-            TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(String.valueOf(TipoUsuarioEnum.GENERAL)).orElseThrow();
+            TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(registerRequest.getTipoUsuario()).orElseThrow();
+
+
             TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(registerRequest.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow();
 
 
@@ -81,6 +86,10 @@ public class UsuarioService {
 
             return ResponseEntity.ok(RegisterResponse.builder().message("Usuario creado con exito").id(userCreated.getId()).build());
 
+
+
+
+
         } catch (Exception e) {
             log.error("Error al crear usuario", e);
             return ResponseEntity.badRequest().body(RegisterResponse.builder().message("Error al crear usuario").build());
@@ -111,6 +120,7 @@ public class UsuarioService {
 
 
     public UsuarioResponse mapToUserResponse(Usuario usuario) {
+
         return UsuarioResponse.builder()
                 .id((long) usuario.getId())
                 .correo(usuario.getCorreo())
@@ -138,6 +148,7 @@ public class UsuarioService {
                         .sms(usuario.getConfigUsuarioGeneral().isSms())
                         .wpp(usuario.getConfigUsuarioGeneral().isWpp())
                         .build())
+                .idEmpresa(usuario.getEmpresas() != null && !usuario.getEmpresas().isEmpty() ? usuario.getEmpresas().get(0).getId() : null)
                 .build();
 
 
@@ -160,7 +171,18 @@ public class UsuarioService {
 
         log.info("{}", user);
 
+
+
+
         Usuario usuario = usuarioRepository.findById(Math.toIntExact(id)).orElseThrow();
+
+        if (!usuario.getCorreo().equals(Utils.getUserEmail())) {
+
+
+            return ResponseEntity.badRequest().body(GenericResponse.<UsuarioResponse>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("solo se le permite modificar sus datos.").code("400").build()).build());
+
+        }
+
 
         TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(user.getTipoUsuario()).orElseThrow(()-> new RuntimeException("Tipo de usuario no encontrado"));
         TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(user.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow(()-> new RuntimeException("Tipo de Documento no encontrado"));
@@ -195,5 +217,12 @@ public class UsuarioService {
 
 
         return null;
+    }
+
+    public ResponseEntity<UsuarioResponse> getProfile() {
+
+        Usuario usuario = usuarioRepository.findByCorreo(Utils.getUserEmail()).orElseThrow();
+
+        return ResponseEntity.ok(mapToUserResponse(usuario));
     }
 }

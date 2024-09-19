@@ -3,17 +3,20 @@ package upe.edu.demo.timeless.controller.dto.response;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @ToString
-@Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class GenericResponse<T> {
-    private T data;
+@Builder
+public class GenerarTurnosResponse {
 
-
+    private Integer idLineaAtencion;
+    private String cantidadturnosGenerados;
 
     private Error error;
+
 }

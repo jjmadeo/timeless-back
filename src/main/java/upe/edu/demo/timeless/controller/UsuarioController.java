@@ -32,6 +32,12 @@ public class UsuarioController {
         return usuarioService.getUsuarioById(id);
     }
 
+    @GetMapping("/perfil")
+    public ResponseEntity<UsuarioResponse> getUserProfile() {
+        return usuarioService.getProfile();
+    }
+
+
     // Actualizar un usuario existente
     @PutMapping("/usuario/{id}")
     public ResponseEntity<GenericResponse<UsuarioResponse>> updateUser(@PathVariable Long id, @RequestBody UsuarioRequest user) {

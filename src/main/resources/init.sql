@@ -18,13 +18,15 @@ CREATE TABLE `TimeLess`.`Usuario` (
 );
 CREATE TABLE `TimeLess`.`Turnos` (
                                      `id` int NOT NULL AUTO_INCREMENT,
+                                     `uuid` varchar(36) NOT NULL,
                                      `fk_agenda` int NOT NULL,
                                      `fk_estado_turno` int NOT NULL,
                                      `fk_medio_págos` int NOT NULL,
                                      `fk_usuario` int ,
-                                     `fh_reserva` datetime NOT NULL,
+                                     `fh_reserva` datetime,
                                      `fh_inicio` datetime NOT NULL,
                                      `fh_fin` datetime NOT NULL,
+                                     `lokedTime` TIME,
                                      `locked` TINYINT NOT NULL default false,
                                      PRIMARY KEY (`id`)
 );
@@ -240,9 +242,11 @@ CREATE TABLE `TimeLess`.`Estado_Turno` (
                                            PRIMARY KEY (`id`)
 );
 
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Reservado');
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Cancelado');
-INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('Reprogramado');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('OTORGADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('GENERADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('PRE_SELECCIONADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('CANCELADO');
+INSERT INTO `TimeLess`.`Estado_Turno`(`detalle`)VALUES('ELIMINADO');
 
 ALTER TABLE `TimeLess`.`Linea_Atencion` ADD FOREIGN KEY (`fk_rubro`) REFERENCES `TimeLess`.`Rubro` (`id`);
 ALTER TABLE `TimeLess`.`Ausencias` ADD FOREIGN KEY (`fk_calendario`) REFERENCES `TimeLess`.`Calendario` (`id`);

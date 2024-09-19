@@ -1,17 +1,14 @@
 package upe.edu.demo.timeless.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.Timestamp;
 @AllArgsConstructor
 @Data
-@ToString
 @NoArgsConstructor
 @Entity
+@Builder
 public class Ausencias {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -22,8 +19,10 @@ public class Ausencias {
     @Column(name = "hasta", nullable = false)
     private Timestamp hasta;
     @Column(name = "descripcion", nullable = false)
-    private int descripcion;
-    @Column(name = "fk_calendario", nullable = false)
-    private int fkCalendario;
+    private String descripcion;
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "fk_calendario")
+    private Calendario calendario;
 
 }

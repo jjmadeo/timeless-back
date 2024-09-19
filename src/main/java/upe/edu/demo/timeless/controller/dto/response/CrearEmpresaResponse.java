@@ -10,10 +10,10 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class GenericResponse<T> {
-    private T data;
+public class CrearEmpresaResponse {
 
-
+    private Integer id;
 
     private Error error;
+
 }

@@ -6,13 +6,16 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 @Data
+
 @ToString
 @NoArgsConstructor
 @Builder
 @Entity
+
 public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -34,7 +37,7 @@ public class Usuario {
 
 
     @OneToMany(mappedBy = "usuario",cascade = CascadeType.PERSIST)
-    private Collection<Empresa> empresas;
+    private List<Empresa> empresas;
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fk_datos_personales", referencedColumnName = "id", nullable = false)
     private DatosPersonales datosPersonales;

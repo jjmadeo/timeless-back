@@ -6,14 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Data
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class GenericResponse<T> {
-    private T data;
+public class ConfirmacionTurnoResponse {
 
-
+    private String hashid;
+    private String mensaje;
+    private LocalDateTime fechaHora;
+    private  String direccion;
 
     private Error error;
 }

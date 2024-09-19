@@ -1,19 +1,18 @@
 package upe.edu.demo.timeless.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.Time;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @Data
-@ToString
 @NoArgsConstructor
+@ToString
 @Entity
+@Builder
 public class Calendario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -29,7 +28,20 @@ public class Calendario {
     @Column(name = "lista_dias_laborables", nullable = false, length = 50)
     private String listaDiasLaborables;
 
-    @OneToMany(mappedBy = "fkCalendario",cascade = CascadeType.PERSIST)
-    private Collection<Ausencias> ausencias;
+    @OneToMany(mappedBy = "calendario",cascade = CascadeType.PERSIST)
+    private List<Ausencias> ausencias;
+
+
+
+    public void addAusencias(Ausencias ausencias){
+
+        if (this.ausencias == null) {
+            this.ausencias = new ArrayList<>();
+        }
+
+
+        this.ausencias.add(ausencias);
+        ausencias.setCalendario(this);
+    }
 
 }

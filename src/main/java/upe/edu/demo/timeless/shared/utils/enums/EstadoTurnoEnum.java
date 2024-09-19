@@ -1,8 +1,13 @@
 package upe.edu.demo.timeless.shared.utils.enums;
 
 public enum EstadoTurnoEnum {
-    RESERVADO,
+    OTORGADO,
+    GENERADO,
+    PRE_SELECCIONADO,
     CANCELADO,
-    REPORGRAMADO,
-    RECHAZADO
+    ELIMINADO,
+    
+
+
+
 }

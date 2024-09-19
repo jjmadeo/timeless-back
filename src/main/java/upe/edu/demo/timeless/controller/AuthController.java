@@ -1,7 +1,9 @@
 package upe.edu.demo.timeless.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import upe.edu.demo.timeless.controller.dto.request.AuthRequest;
 import upe.edu.demo.timeless.controller.dto.request.RegisterRequest;
+import upe.edu.demo.timeless.controller.dto.response.Error;
+import upe.edu.demo.timeless.controller.dto.response.LoginResponse;
 import upe.edu.demo.timeless.controller.dto.response.RegisterResponse;
 import upe.edu.demo.timeless.service.UsuarioService;
 import upe.edu.demo.timeless.shared.utils.JwtUtil;
@@ -34,15 +38,33 @@ public class AuthController {
 
 
     @PostMapping("/authenticate")
-    public String createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
-        log.info("Autenticando usuario {}",authRequest.toString());
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getCorreo(), authRequest.getClave())
-        );
-        log.info("Usuario autenticado");
+    public ResponseEntity<LoginResponse> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getCorreo());
-        return jwtUtil.generateToken(userDetails.getUsername(), userDetails.getAuthorities().toString(),null);
+        try {
+
+            if  (authRequest.getCorreo().isEmpty() || authRequest.getClave().isEmpty()){
+
+                return ResponseEntity.badRequest().body(LoginResponse.builder().error(Error.builder().code("403").status(HttpStatus.BAD_REQUEST).title("Debe completar Correo y Clave").build()).build());
+            }
+
+
+            log.info("Autenticando usuario {}",authRequest.toString());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getCorreo(), authRequest.getClave())
+            );
+
+
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getCorreo());
+
+            return ResponseEntity.ok(LoginResponse.builder().token(jwtUtil.generateToken(userDetails.getUsername(), userDetails.getAuthorities().toString(),null)).build());
+
+        }catch (Exception e){
+            log.error("Error al autenticar usuario {}",e.getMessage());
+            return ResponseEntity.badRequest().body(LoginResponse.builder().error(Error.builder().code("403").status(HttpStatus.BAD_REQUEST).title("Correo o Clave incorrectos").build()).build());
+        }
+
+
+
     }
 
   /*  @PostMapping("/refresh-token")
