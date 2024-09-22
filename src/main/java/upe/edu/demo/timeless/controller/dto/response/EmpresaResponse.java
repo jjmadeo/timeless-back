@@ -33,6 +33,8 @@ public class EmpresaResponse {
 
     private List<LineaAtencion> lineasAtencion;
 
+    private String rubro;
+
     private Error error;
 
 

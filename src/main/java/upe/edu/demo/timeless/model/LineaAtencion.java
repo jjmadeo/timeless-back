@@ -34,9 +34,6 @@ public class LineaAtencion {
     private Empresa empresa;
 
 
-    @OneToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "fk_rubro", referencedColumnName = "id", nullable = false)
-    private Rubro rubro;
 
 
     public void addAgenda(Agenda agenda) {

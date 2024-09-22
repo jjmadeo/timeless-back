@@ -44,6 +44,10 @@ public class Empresa {
     @JoinColumn(name = "fk_calendario", referencedColumnName = "id", nullable = false)
     private Calendario calendario;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "fk_rubro", referencedColumnName = "id", nullable = false)
+    private Rubro rubro;
+
 
 
     public void addParametro(ParametrizacionEmpresa param){

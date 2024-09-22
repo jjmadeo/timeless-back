@@ -12,7 +12,7 @@ import lombok.ToString;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class LineaAtencion {
     private Long id;
-    private  String rubro;
+
     private String descripcion;
     private String duracionTurnos;
 }

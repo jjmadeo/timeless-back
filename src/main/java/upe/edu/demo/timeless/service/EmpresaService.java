@@ -99,6 +99,7 @@ public class EmpresaService {
                             .hFin(Time.valueOf(empresaRequest.getCalendario().getHoraCierre()))
                             .listaDiasLaborables(empresaRequest.getCalendario().getDiasLaborales())
                             .build())
+                    .rubro(rubro.stream().filter(r -> r.getDetalle().equals(empresaRequest.getRubro())).findFirst().get())
 
                     .build();
 
@@ -115,7 +116,8 @@ public class EmpresaService {
             empresaRequest.getLineasAtencion().forEach(linea -> {
               LineaAtencion lineaAtencion =  LineaAtencion.builder()
                         .descripccion(linea.getDescripcion())
-                        .rubro(rubro.stream().filter(r -> r.getDetalle().equals(linea.getRubro())).findFirst().get())
+                      .habilitado(true)
+
                         .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
                         .build();
 
@@ -162,9 +164,14 @@ public class EmpresaService {
 
         try {
 
-            Empresa empresa = empresaRepository.findById(Math.toIntExact(id)).orElseThrow(() -> new NoSuchElementException("Empresa no encontrada."));
+           Optional<Empresa> empresa = empresaRepository.findById(Math.toIntExact(id));
 
-            return ResponseEntity.ok(mapEmpresaToResponse(empresa));
+            if (empresa.isEmpty()) {
+                log.error("La Empresa no existe.");
+                return ResponseEntity.badRequest().body(EmpresaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La Empresa no existe.").code("400").build()).build());
+            }
+
+            return ResponseEntity.ok(mapEmpresaToResponse(empresa.get()));
 
         } catch (NoSuchElementException e) {
             log.error("Error al obtener la Empresa: {}", e.getMessage());
@@ -226,6 +233,7 @@ public class EmpresaService {
                         .ausencias(mapAusencias(empresa.getCalendario().getAusencias()))
                         .build())
                 .lineasAtencion(mapLineasAtencion(empresa.getLineaAtencion()))
+                .rubro(empresa.getRubro().getDetalle())
                 .build();
     }
 
@@ -259,7 +267,7 @@ public class EmpresaService {
             lineasAtencionEmpresa.add(upe.edu.demo.timeless.controller.dto.request.LineaAtencion.builder()
                     .id((long) linea.getId())
                     .descripcion(linea.getDescripccion())
-                    .rubro(linea.getRubro().getDetalle())
+
                     .duracionTurnos(String.valueOf(linea.getDuracionTurno()))
                     .build());
         });

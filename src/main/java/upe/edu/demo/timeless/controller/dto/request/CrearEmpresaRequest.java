@@ -23,6 +23,7 @@ public class CrearEmpresaRequest {
     private Calendario calendario;
 
     private List<LineaAtencion> lineasAtencion;
+    private  String rubro;
 
 
 
