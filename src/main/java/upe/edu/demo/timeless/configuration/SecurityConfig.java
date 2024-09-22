@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import upe.edu.demo.timeless.service.auth.CustomUserDetailsService;
@@ -34,7 +35,7 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.csrf(AbstractHttpConfigurer::disable).cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/v1/timeless/authenticate", "/v1/timeless/refresh-token","/v1/timeless/register","/swagger**","/v3/api-docs/**","/swagger-ui/**","/swagger-ui","/v1/timeless/CancelarTurno/**")
 
@@ -53,22 +54,17 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+
+
   @Bean
-  public CorsFilter corsFilter() {
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.applyPermitDefaultValues();
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowCredentials(true);
-
-    // Permitir todos los orígenes usando patrones
-    config.setAllowedOriginPatterns(List.of("*")); // Permitir todos los orígenes
-    config.setAllowedHeaders(List.of("*")); // Permitir todos los encabezados
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Permitir todos los métodos HTTP
-
-
-    source.registerCorsConfiguration("/**", config); // Aplicar configuración a todos los endpoints
-    return new CorsFilter(source);
+    source.registerCorsConfiguration("/**",configuration);
+    return source;
   }
-
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
