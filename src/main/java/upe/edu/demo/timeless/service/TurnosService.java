@@ -378,7 +378,7 @@ public class TurnosService {
                 .hashid(turno.getUuid())
                 .duracion(turno.getAgenda().getLineaAtencion().getDuracionTurno())
                 .mensaje(turno.getAgenda().getLineaAtencion().getDescripccion())
-                .rubro(turno.getAgenda().getLineaAtencion().getRubro())
+                .rubro(turno.getAgenda().getLineaAtencion().getEmpresa().getRubro())
                 .direccion(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
                 .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())

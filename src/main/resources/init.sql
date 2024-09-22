@@ -271,4 +271,9 @@ ALTER TABLE `TimeLess`.`Datos_Fiscales` ADD FOREIGN KEY (`fk_direccion_empresa`)
 ALTER TABLE `TimeLess`.`Agenda` ADD FOREIGN KEY (`fk_linea_atencion`) REFERENCES `TimeLess`.`Linea_Atencion` (`id`);
 ALTER TABLE `TimeLess`.`Parametrizacion_Empresa` ADD FOREIGN KEY (`fk_empresa`) REFERENCES `TimeLess`.`Empresa` (`id`);
 
+--Modificaciones
 
+ALTER TABLE Linea_Atencion DROP CONSTRAINT linea_atencion_ibfk_1;
+ALTER TABLE Linea_Atencion DROP COLUMN fk_rubro;
+ALTER TABLE Empresa ADD COLUMN fk_rubro int not null;
+ALTER TABLE `TimeLess`.`Empresa` ADD FOREIGN KEY (`fk_rubro`) REFERENCES `TimeLess`.`Rubro` (`id`);
