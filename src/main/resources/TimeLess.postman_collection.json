@@ -1,0 +1,520 @@
+{
+	"info": {
+		"_postman_id": "089d89ca-196c-421b-a52e-7bb5442a7e1c",
+		"name": "TimeLess",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5736307"
+	},
+	"item": [
+		{
+			"name": "Registro",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"correo\":\"usuario@gmail.com\",\r\n\"clave\":\"1234\",\r\n\"tipoUsuario\":\"GENERAL\",\r\n    \"datosPersonales\":{\r\n        \"nombre\":\"Juan Jose\",\r\n        \"apellido\":\"Madeo\",\r\n        \"numeroDocumento\":\"38589765\",\r\n        \"tipoDocumento\":\"DNI\",\r\n        \"telefonoCelular\":\"1150698176\",\r\n        \"fNacimiento\":\"16-01-1995\"\r\n        \r\n    },\r\n    \"domicilio\":{\r\n        \"calle\":\"Almafuerte\",\r\n        \"numero\":\"2354\",\r\n        \"ciudad\":\"GBA\",\r\n        \"localidad\":\"Luis Guillon\",\r\n        \"provincia\":\"Buenos Aires\",\r\n        \"pais\":\"Argentina\"        \r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CrearEmpresaProcess",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \r\n  \"datos_fiscales\": {\r\n    \"razon_social\": \"Empresa XYZ S.A.\",\r\n    \"nombre_fantasia\": \"XYZ Solutions\",\r\n    \"cuit\": \"30-12346579-9\",\r\n    \"domicilio_fiscal\": {\r\n      \"calle\": \"Av. Siempre Viva\",\r\n      \"numero\": \"742\",\r\n      \"ciudad\": \"Springfield\",\r\n      \"localidad\": \"Springfield\",\r\n      \"provincia\": \"Buenos Aires\",\r\n      \"pais\": \"Argentina\"\r\n    }\r\n  },\r\n  \"parametros\": [\r\n    {\r\n      \"clave\": \"margen_ganancia\",\r\n      \"valor\": \"10%\",\r\n      \"descripcion\": \"Margen de ganancia sobre cada operación\"\r\n    },\r\n    {\r\n      \"clave\": \"descuento_temporada\",\r\n      \"valor\": \"15%\",\r\n      \"descripcion\": \"Descuento aplicado durante la temporada alta\"\r\n    }\r\n  ],\r\n  \"calendario\": {\r\n    \"hora_apertura\": \"09:00:00\",\r\n    \"hora_cierre\": \"18:00:00\",\r\n    \"dias_laborales\": \"Lunes a Viernes\",\r\n    \"ausencias\": [\r\n      {\r\n        \"desde\": \"2024-09-10\",\r\n        \"hasta\": \"2024-09-12\",\r\n        \"descripcion\": \"Vacaciones de personal\"\r\n      },\r\n      {\r\n        \"desde\": \"2024-12-24\",\r\n        \"hasta\": \"2024-12-25\",\r\n        \"descripcion\": \"Festividades de Navidad\"\r\n      }\r\n    ]\r\n  },\r\n  \"lineas_atencion\": [\r\n    {\r\n      \"rubro\": \"BARBERIA\",\r\n      \"descripcion\": \"Soporte técnico y desarrollo de software\",\r\n      \"duracion_turnos\": \"45\"\r\n    },\r\n    {\r\n      \"rubro\": \"MANICURA\",\r\n      \"descripcion\": \"Consultoría en estrategias de marketing\",\r\n      \"duracion_turnos\": \"15\"\r\n    }\r\n  ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/empresa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"empresa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerarTurnos",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"idlineaAtencion\":2,\r\n  \"fechaDesde\": \"2024-09-18T09:00:00\",\r\n  \"fechaHasta\": \"2024-09-20T17:00:00\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/GenerarTurnos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"GenerarTurnos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreseleccionarTurno",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/preselccionarTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"preselccionarTurno",
+						"722f73f6-9d1d-4fdd-a799-04758643debb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ConfirmarTurno",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/ConfirmarTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"ConfirmarTurno",
+						"722f73f6-9d1d-4fdd-a799-04758643debb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cancelarTurnoSinToken",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/CancelarTurno/a6926e05-4d14-47ae-b07a-8f88dfc6e731",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"CancelarTurno",
+						"a6926e05-4d14-47ae-b07a-8f88dfc6e731"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ActualizarUsuario",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"tipoUsuario\":\"GENERAL\",\r\n\"clave\":\"juan1234\",\r\n    \"datosPersonales\":{\r\n        \"nombre\":\"Juan Perez\",\r\n        \"apellido\":\"Madeo\",\r\n        \"numeroDocumento\":\"38589765\",\r\n        \"tipoDocumento\":\"DNI\",\r\n        \"telefonoCelular\":\"1150698176\",\r\n        \"fNacimiento\":\"16-01-1995\"\r\n        \r\n    },\r\n    \"domicilio\":{\r\n        \"calle\":\"Almafuerte\",\r\n        \"numero\":\"2354\",\r\n        \"ciudad\":\"GBA\",\r\n        \"localidad\":\"Luis Guillon\",\r\n        \"provincia\":\"Buenos Aires\",\r\n        \"pais\":\"Argentina\"        \r\n    },\r\n    \"configUsuarioGeneral\":{\r\n        \"email\":false,\r\n        \"wpp\":true,\r\n        \"sms\":\"false\"\r\n    }\r\n\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/usuario/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"usuario",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Extrae la respuesta JSON\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"// Verifica si hay un token y lo guarda en una variable de colección\r",
+							"if (jsonData.token) {\r",
+							"    pm.collectionVariables.set(\"token\", jsonData.token);\r",
+							"} else {\r",
+							"    console.log(\"No se recibió un token en la respuesta.\");\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"correo\":\"usuario@gmail.com\",\r\n    \"clave\":\"1234\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/authenticate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUsaurioByID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/usuario/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"usuario",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmpresaByID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/empresa/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"empresa",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPerfil",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/perfil",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"perfil"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUsaurios",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/usuarios",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTurnosDisponibles",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/turnos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"turnos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmpresas",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/empresas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"empresas"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

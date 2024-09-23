@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  timeless:
+    build: .
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/timeLess
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root_password
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:latest
+    environment:
+      MARIADB_USER: timelessuser
+      MARIADB_PASSWORD: timelesspass
+      MARIADB_ROOT_PASSWORD: root_password
+      MARIADB_DATABASE: timelessdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - C:/volumenes/init.sql:/docker-entrypoint-initdb.d/1.sql   # Montar el directorio con los archivos SQL
+      - C:/volumenes/mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
