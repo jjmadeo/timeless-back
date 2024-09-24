@@ -38,10 +38,10 @@ public class DomicilioFiscal {
     private String pais;
 
     @Basic
-    @Column(name = "latitud", nullable = false, precision = 9, scale = 6)
+    @Column(name = "latitud",  precision = 9, scale = 6)
     private BigDecimal latitud;
     @Basic
-    @Column(name = "longitud", nullable = false, precision = 9, scale = 6)
+    @Column(name = "longitud", precision = 9, scale = 6)
     private BigDecimal longitud;
 
 
