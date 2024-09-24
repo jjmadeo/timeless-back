@@ -2,6 +2,7 @@ package upe.edu.demo.timeless.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
@@ -21,9 +22,15 @@ public class TurnoController {
     
 
     @GetMapping("/turnos")
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getUsuarios(){
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getturnos(){
         return turnosService.getTurnosDisponibles();
     }
+
+    @GetMapping("/turnosEmpresa/{id}")
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosEmpresa(@PathVariable("id") Long id){
+        return turnosService.getTurnosDisponiblesEmpresa(id);
+    }
+
 
 
     // Actualizar un usuario existente

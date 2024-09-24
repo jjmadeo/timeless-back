@@ -2,6 +2,7 @@ package upe.edu.demo.timeless.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
@@ -55,6 +56,9 @@ public class EmpresaController {
         return ResponseEntity.noContent().build();
     }
     */
-    
+   @GetMapping("/empresasByLocation/{id}")
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@PathVariable("id") Integer idEmpresa,@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance) {
+        return empresaService.getEmpresasByLocation(idEmpresa, lon, lat, distance);
+    }
 
 }

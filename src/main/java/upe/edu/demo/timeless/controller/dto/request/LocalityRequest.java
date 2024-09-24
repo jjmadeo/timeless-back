@@ -10,10 +10,13 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class DatosFiscales {
-    private String razonSocial;
-    private String nombreFantasia;
-    private String cuit;
-    private DomicilioFiscal domicilioFiscal;
+public class LocalityRequest {
+
+    private Integer id;
+    private String tipo;
+    private String longitud;
+    private String latitud;
+
+
 
 }

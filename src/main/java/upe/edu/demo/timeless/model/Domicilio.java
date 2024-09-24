@@ -3,6 +3,7 @@ package upe.edu.demo.timeless.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Objects;
 @AllArgsConstructor
@@ -34,6 +35,13 @@ public class Domicilio {
     @Basic
     @Column(name = "pais", nullable = false, length = 50)
     private String pais;
+
+    @Basic
+    @Column(name = "latitud", nullable = false, precision = 9, scale = 6)
+    private BigDecimal latitud;
+    @Basic
+    @Column(name = "longitud", nullable = false, precision = 9, scale = 6)
+    private BigDecimal longitud;
 
 
 

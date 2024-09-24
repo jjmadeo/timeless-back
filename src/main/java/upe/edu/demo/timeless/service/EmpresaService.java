@@ -205,6 +205,8 @@ public class EmpresaService {
                                 .provincia(empresa.getUsuario().getDatosPersonales().getDomicilio().getProvincia())
                                 .pais(empresa.getUsuario().getDatosPersonales().getDomicilio().getPais())
                                 .ciudad(empresa.getUsuario().getDatosPersonales().getDomicilio().getCiudad())
+                                .latitud(empresa.getUsuario().getDatosPersonales().getDomicilio().getLatitud())
+                                .longitud(empresa.getUsuario().getDatosPersonales().getDomicilio().getLongitud())
                                 .build())
                         .configUsuarioGeneral(ConfigUsuarioGeneralResponse.builder()
                                 .email(empresa.getUsuario().getConfigUsuarioGeneral().isEmail())
@@ -223,6 +225,8 @@ public class EmpresaService {
                                 .provincia(empresa.getDatosFiscales().getDomicilioFiscal().getProvincia())
                                 .pais(empresa.getDatosFiscales().getDomicilioFiscal().getPais())
                                 .ciudad(empresa.getDatosFiscales().getDomicilioFiscal().getCiudad())
+                                .latitud(empresa.getDatosFiscales().getDomicilioFiscal().getLatitud())
+                                .longitud(empresa.getDatosFiscales().getDomicilioFiscal().getLongitud())
                                 .build())
                         .build())
                 .parametros(mapParametros(empresa.getParametrizaciones()))
@@ -314,6 +318,30 @@ public class EmpresaService {
         // TODO Auto-generated method stub
 
         return null;
+
+    }
+
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(Integer idEmpresa, String lon, String lat, String distance) {
+        log.info("Data: {}, {}, {}", lon, lat, distance);
+
+        List<Empresa> empresas = (List<Empresa>) empresaRepository.findAll();
+
+        List <Empresa> empresasInRadius = new ArrayList<>();
+
+        empresas.forEach(empresa -> {
+            if (Utils.isInRadius(empresa.getDatosFiscales().getDomicilioFiscal().getLatitud(), empresa.getDatosFiscales().getDomicilioFiscal().getLongitud(), Double.parseDouble(lat), Double.parseDouble(lon), Double.parseDouble(distance))) {
+                empresasInRadius.add(empresa);
+            }
+        });
+
+
+        List<EmpresaResponse> empresasResponse = new ArrayList<>();
+
+        empresasInRadius.forEach(empresa -> {
+            empresasResponse.add(mapEmpresaToResponse(empresa));
+        });
+
+        return ResponseEntity.ok(MultiEntityResponse.<EmpresaResponse>builder().data(empresasResponse).build());
 
     }
 }

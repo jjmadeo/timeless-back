@@ -277,3 +277,11 @@ ALTER TABLE Linea_Atencion DROP CONSTRAINT linea_atencion_ibfk_1;
 ALTER TABLE Linea_Atencion DROP COLUMN fk_rubro;
 ALTER TABLE Empresa ADD COLUMN fk_rubro int not null;
 ALTER TABLE `TimeLess`.`Empresa` ADD FOREIGN KEY (`fk_rubro`) REFERENCES `TimeLess`.`Rubro` (`id`);
+
+ALTER TABLE Domicilio
+    ADD COLUMN latitud DECIMAL(9, 6) NOT NULL,
+ADD COLUMN longitud DECIMAL(9, 6) NOT NULL;
+
+ALTER TABLE Domicilio_Fiscal
+    ADD COLUMN latitud DECIMAL(9, 6) NOT NULL,
+ADD COLUMN longitud DECIMAL(9, 6) NOT NULL;
