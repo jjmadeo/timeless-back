@@ -15,4 +15,5 @@ public class DatosFiscales {
     private String nombreFantasia;
     private String cuit;
     private DomicilioFiscal domicilioFiscal;
+
 }

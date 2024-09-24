@@ -142,6 +142,8 @@ public class UsuarioService {
                         .pais(usuario.getDatosPersonales().getDomicilio().getPais())
                         .localidad(usuario.getDatosPersonales().getDomicilio().getLocalidad())
                         .provincia(usuario.getDatosPersonales().getDomicilio().getProvincia())
+                        .latitud(usuario.getDatosPersonales().getDomicilio().getLatitud())
+                        .longitud(usuario.getDatosPersonales().getDomicilio().getLongitud())
                         .build())
                 .configUsuarioGeneral(ConfigUsuarioGeneralResponse.builder()
                         .email(usuario.getConfigUsuarioGeneral().isEmail())

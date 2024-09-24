@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Data
 @ToString
 @Builder
@@ -22,4 +24,8 @@ public class DomicilioResponse {
     private String provincia;
 
     private String pais;
+
+    private BigDecimal latitud;
+
+    private BigDecimal longitud;
 }
