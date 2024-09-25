@@ -9,6 +9,7 @@ import upe.edu.demo.timeless.controller.dto.request.RegisterRequest;
 import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.GenericResponse;
 import upe.edu.demo.timeless.controller.dto.response.MultiEntityResponse;
+import upe.edu.demo.timeless.controller.dto.response.PreseleccionarTurnoResponse;
 import upe.edu.demo.timeless.controller.dto.response.UsuarioResponse;
 import upe.edu.demo.timeless.service.UsuarioService;
 
@@ -43,6 +44,14 @@ public class UsuarioController {
     public ResponseEntity<GenericResponse<UsuarioResponse>> updateUser(@PathVariable Long id, @RequestBody UsuarioRequest user) {
 
         return usuarioService.updateUser(id, user);
+    }
+
+
+    @GetMapping("/UsuarioByTurno/{hashid}")
+    public ResponseEntity<UsuarioResponse> preseleccionarTurno(@PathVariable String hashid) {
+
+        return usuarioService.obtenerUsuarioPorTurnoOtorgado(hashid);
+
     }
 
    /* // Eliminar un usuario por ID

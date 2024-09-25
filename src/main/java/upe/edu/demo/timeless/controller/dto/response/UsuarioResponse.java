@@ -32,5 +32,7 @@ public class UsuarioResponse {
 
     private Integer idEmpresa;
 
+    private Error error;
+
 
 }
