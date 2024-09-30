@@ -25,7 +25,7 @@ public class DatosFiscales {
     @Column(name = "cuit", nullable = true, length = 50)
     private String cuit;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_direccion_empresa", referencedColumnName = "id")
     private DomicilioFiscal domicilioFiscal;
 

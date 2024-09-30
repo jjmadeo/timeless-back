@@ -27,8 +27,8 @@ public class TurnoController {
     }
 
     @GetMapping("/turnosEmpresa/{id}")
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosEmpresa(@PathVariable("id") Long id){
-        return turnosService.getTurnosDisponiblesEmpresa(id);
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosEmpresa(@PathVariable("id") Long id, @Param("fecha") String fecha){
+        return turnosService.getTurnosDisponiblesEmpresa(id,fecha);
     }
 
 
@@ -68,13 +68,14 @@ public class TurnoController {
 
     }
 
-   /* // Eliminar un usuario por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/turnosByUser")
+    public ResponseEntity<TurnosResponseUser> getturnosByUser(){
+        return turnosService.getTurnosDisponiblesUser();
     }
-    */
-    
+
+
+
+
+
 
 }

@@ -21,7 +21,7 @@ public class Agenda {
     @OneToOne
     @JoinColumn(name = "fk_linea_atencion", referencedColumnName = "id")
     private LineaAtencion lineaAtencion;
-    @OneToMany(mappedBy = "agenda" ,cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "agenda" ,cascade = CascadeType.ALL)
     private Collection<Turno> turnos;
 
 

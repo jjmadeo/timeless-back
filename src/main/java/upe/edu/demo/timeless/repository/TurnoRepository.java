@@ -15,4 +15,6 @@ public interface TurnoRepository extends CrudRepository<Turno, Integer> {
 
     Optional<Turno> findByUuid(String uuid);
 
+
+
 }

@@ -33,10 +33,10 @@ public class DatosPersonales {
     @Basic
     @Column(name = "f_nacimiento", nullable = true, length = 10)
     private String fNacimiento;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne()
     @JoinColumn(name = "fk_tipo_documento", referencedColumnName = "id")
     private TipoDocumento tipoDocumento;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_domicilio", referencedColumnName = "id")
     private Domicilio domicilio;
 
