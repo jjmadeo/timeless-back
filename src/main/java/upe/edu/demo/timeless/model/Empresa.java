@@ -25,26 +25,26 @@ public class Empresa {
     @Column(name = "fh_creacion", nullable = false)
     private Timestamp fhCreacion;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_usuario_propietario", referencedColumnName = "id", nullable = false)
     private Usuario usuario;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_datos_empresa", referencedColumnName = "id", nullable = false)
     private DatosFiscales datosFiscales;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne()
     @JoinColumn(name = "fk_membresia", referencedColumnName = "id", nullable = false)
     private Membresia membresia;
-    @OneToMany(mappedBy = "empresa",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "empresa",cascade = CascadeType.ALL)
     private List<LineaAtencion> lineaAtencion;
 
-    @OneToMany(mappedBy = "empresa",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "empresa",cascade = CascadeType.ALL)
     private List<ParametrizacionEmpresa> parametrizaciones;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_calendario", referencedColumnName = "id", nullable = false)
     private Calendario calendario;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne()
     @JoinColumn(name = "fk_rubro", referencedColumnName = "id", nullable = false)
     private Rubro rubro;
 

@@ -56,9 +56,9 @@ public class EmpresaController {
         return ResponseEntity.noContent().build();
     }
     */
-   @GetMapping("/empresasByLocation/{id}")
-    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@PathVariable("id") Integer idEmpresa,@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance) {
-        return empresaService.getEmpresasByLocation(idEmpresa, lon, lat, distance);
+   @GetMapping("/empresasByLocation")
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance) {
+        return empresaService.getEmpresasByLocation(lon, lat, distance);
     }
 
 }

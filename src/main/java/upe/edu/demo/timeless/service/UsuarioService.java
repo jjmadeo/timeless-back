@@ -263,4 +263,36 @@ public class UsuarioService {
 
 
     }
+
+
+    /*public ResponseEntity<GenericResponse<String>> deleteUser() {
+
+        String email = Utils.getUserEmail();
+
+       String tipoUser = Utils.getFirstAuthority();
+
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(email);
+
+
+
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.badRequest().body(GenericResponse.<String>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no encontrado").code("400").build()).build());
+        }
+
+        log.info("Usuario eliminado.{}", usuario.get());
+
+        usuarioRepository.delete(usuario.get());
+
+
+
+        return ResponseEntity.ok(GenericResponse.<String>builder().data("Usuario eliminado con exito").build());
+
+
+
+
+
+
+    }*/
 }

@@ -2,6 +2,7 @@
 FROM maven:3.9.5-eclipse-temurin-21 AS build
 WORKDIR /timeless
 
+
 # Copia el archivo pom.xml y descarga las dependencias
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
@@ -13,7 +14,8 @@ RUN mvn clean package -DskipTests
 # Etapa 2: Crear la imagen de la aplicación
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /timeless
-
+# Establecer la variable de entorno TZ para configurar la zona horaria
+ENV TZ=America/Argentina/Buenos_Aires
 # Copia el JAR generado desde la etapa anterior
 COPY --from=build /timeless/target/*.jar timeless.jar
 

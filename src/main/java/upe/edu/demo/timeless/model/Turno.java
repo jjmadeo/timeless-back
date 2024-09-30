@@ -40,17 +40,18 @@ public class Turno {
     private Timestamp fhFin;
 
     @ToString.Exclude
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_agenda", referencedColumnName = "id", nullable = false)
     private Agenda agenda;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_estado_turno", referencedColumnName = "id", nullable = false)
     private EstadoTurno estadoTurno;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_medio_págos", referencedColumnName = "id", nullable = false)
     private MediosPagos mediosPago;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ToString.Exclude
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_usuario", referencedColumnName = "id")
     private Usuario usuario;
 

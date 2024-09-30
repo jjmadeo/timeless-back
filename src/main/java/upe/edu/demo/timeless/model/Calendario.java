@@ -28,7 +28,7 @@ public class Calendario {
     @Column(name = "lista_dias_laborables", nullable = false, length = 50)
     private String listaDiasLaborables;
 
-    @OneToMany(mappedBy = "calendario",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "calendario",cascade = CascadeType.ALL)
     private List<Ausencias> ausencias;
 
 

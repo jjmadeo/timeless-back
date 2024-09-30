@@ -321,7 +321,7 @@ public class EmpresaService {
 
     }
 
-    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(Integer idEmpresa, String lon, String lat, String distance) {
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation( String lon, String lat, String distance) {
         log.info("Data: {}, {}, {}", lon, lat, distance);
 
         List<Empresa> empresas = (List<Empresa>) empresaRepository.findAll();
