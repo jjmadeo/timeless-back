@@ -473,4 +473,40 @@ public class TurnosService {
 
 
     }
+
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Long id, String fecha) {
+
+        log.info("Buscando turnos disponibles para la Linea de atencion con ID: {}, fecha {}", id, fecha);
+
+        List<Turno> turnos = (List<Turno>) turnoRepository.findAll();
+
+        List<Turno> turnosDisponibles;
+
+
+        turnosDisponibles = turnos.stream().filter(turno ->
+                (turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.GENERADO)))
+                        && (turno.getUsuario()== null)
+                        && !turno.getLocked()
+                        && turno.getFhReserva() == null
+                        && turno.getAgenda().getLineaAtencion().isHabilitado()
+                        && turno.getAgenda().getLineaAtencion().getId()==id
+        ).toList();
+
+
+        if(fecha != null && !fecha.isEmpty()){
+
+            log.info("Filtrando por fecha: {}", fecha);
+            LocalDate fechaTurno = LocalDate.parse(fecha);
+            turnosDisponibles = turnosDisponibles.stream().filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(fechaTurno)).toList();
+
+        }
+
+
+        log.info("Turnos disponibles: {}", turnosDisponibles);
+
+        return ResponseEntity.ok(MultiEntityResponse.<TurnosResponse>builder().data(turnosDisponibles.stream().map(this::mapTurnoToTurnosResponse).toList()).build());
+
+
+
+    }
 }

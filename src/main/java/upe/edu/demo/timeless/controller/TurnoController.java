@@ -31,7 +31,10 @@ public class TurnoController {
         return turnosService.getTurnosDisponiblesEmpresa(id,fecha);
     }
 
-
+    @GetMapping("/turnosLineaAtencion/{id}")
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLinea(@PathVariable("id") Long id, @Param("fecha") String fecha){
+        return turnosService.getTurnosDisponiblesLineaAtencion(id,fecha);
+    }
 
     // Actualizar un usuario existente
   /* @PutMapping("/empresa/{id}")

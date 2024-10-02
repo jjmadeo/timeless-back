@@ -303,14 +303,6 @@ public class EmpresaService {
     }
 
 
-    //endpoint de prueba
-    public ResponseEntity<String> test() {
-
-        log.info("{}", Utils.getUserEmail());
-
-        return ResponseEntity.ok(Utils.getUserEmail());
-
-    }
 
 
     public ResponseEntity<GenericResponse<UsuarioResponse>> updateEmpresa(Long id, CrearEmpresaRequest user) {
@@ -321,10 +313,15 @@ public class EmpresaService {
 
     }
 
-    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation( String lon, String lat, String distance) {
-        log.info("Data: {}, {}, {}", lon, lat, distance);
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation( String lon, String lat, String distance, String rubro) {
+        log.info("Data: {}, {}, {},{}", lon, lat, distance, rubro);
 
         List<Empresa> empresas = (List<Empresa>) empresaRepository.findAll();
+
+
+        if (rubro != null && !rubro.isEmpty()) {
+            empresas = empresas.stream().filter(empresa -> empresa.getRubro().getDetalle().equalsIgnoreCase(rubro)).toList();
+        }
 
         List <Empresa> empresasInRadius = new ArrayList<>();
 
