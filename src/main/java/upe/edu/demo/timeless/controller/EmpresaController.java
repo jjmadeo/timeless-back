@@ -26,10 +26,7 @@ public class EmpresaController {
         return empresaService.getAllEmpresas();
     }
 
-    @GetMapping("/prueba")
-    public ResponseEntity<?> gtest(){
-        return empresaService.test();
-    }
+
 
    @GetMapping("/empresa/{id}")
     public ResponseEntity<EmpresaResponse> getUsuarioById(@PathVariable Long id) {
@@ -57,8 +54,8 @@ public class EmpresaController {
     }
     */
    @GetMapping("/empresasByLocation")
-    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance) {
-        return empresaService.getEmpresasByLocation(lon, lat, distance);
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance,@Param("rubro") String rubro) {
+        return empresaService.getEmpresasByLocation(lon, lat, distance, rubro);
     }
 
 }
