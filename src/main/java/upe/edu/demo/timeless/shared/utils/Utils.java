@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.User;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -119,5 +120,12 @@ public class Utils {
 
     }
 
+    public static int obtenerDiaSemanaHoy() {
+        // Obtiene la fecha actual
+        LocalDate fechaHoy = LocalDate.now();
+        // Obtiene el día de la semana como número (1 = Lunes, 7 = Domingo)
+        DayOfWeek dayOfWeek = fechaHoy.getDayOfWeek();
+        return dayOfWeek.getValue();  // getValue() devuelve 1 para lunes y 7 para domingo
+    }
 
 }
