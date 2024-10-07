@@ -22,6 +22,8 @@ public class TurnosResponse {
     private Rubro rubro;
     private String nombreEmpresa;
 
+    private Cordenadas cordenadas;
+
 
 
     private Error error;
