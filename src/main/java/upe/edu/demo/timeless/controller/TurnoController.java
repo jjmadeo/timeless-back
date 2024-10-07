@@ -76,7 +76,10 @@ public class TurnoController {
         return turnosService.getTurnosDisponiblesUser();
     }
 
-
+    @GetMapping("/VisualizarTurnosDisponibles/{id}")
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLineaAtencion(@PathVariable("id") Integer id, @Param("fecha") String fecha){
+        return turnosService.getTurnosDisponiblesLineaAtencionAndFecha(id,fecha);
+    }
 
 
 

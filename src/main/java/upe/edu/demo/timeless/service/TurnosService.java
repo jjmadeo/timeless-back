@@ -1,5 +1,6 @@
 package upe.edu.demo.timeless.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,16 +15,20 @@ import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.*;
+import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
+import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
 import upe.edu.demo.timeless.shared.utils.enums.EstadoTurnoEnum;
 import upe.edu.demo.timeless.shared.utils.enums.MembresiaEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,6 +49,7 @@ public class TurnosService {
     private final EstadoTurnoRepository estadoTurnoRepository;
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
+    private final CacheWithTTL<String,Turno> cacheWithTTL;
 
 
     public ResponseEntity<GenerarTurnosResponse> generarTurnos(GenerarTurnosRequest generarTurnosRequest) {
@@ -137,7 +143,7 @@ public class TurnosService {
             } else {
                 // Generamos turnos para el día actual de 9 AM a 5 PM
                 log.info("Generando turnos para el día: {}", diaInicio);
-                turnosGenerados.addAll(generarTurnosParaUnDia(diaInicio, duracionTurno, rangoInicioAtencion, rangofinAtencion));
+                turnosGenerados.addAll(generarTurnosParaUnDia(diaInicio, lineaAtencion.get(), rangoInicioAtencion, rangofinAtencion));
             }
 
             // Avanzamos al siguiente día
@@ -171,7 +177,7 @@ public class TurnosService {
     }
 
     // Generar turnos de 15 minutos desde 9 AM hasta 5 PM para un día dado
-    private List<Turno> generarTurnosParaUnDia(LocalDate dia, Integer duracionTurno, Integer rangoInicioAtencion, Integer rangofinAtencion) {
+    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
         // Hora de inicio (9 AM)
         LocalTime horaInicio = LocalTime.of(rangoInicioAtencion, 0);
         // Hora de fin (5 PM)
@@ -191,6 +197,7 @@ public class TurnosService {
         while (inicio.isBefore(fin)) {
             // Crear un nuevo turno
             Turno turno = new Turno();
+            turno.setAgenda(lineaAtencion.getAgenda());
             turno.setUuid(String.valueOf(UUID.randomUUID())); // Genera un UUID único para cada turno
             turno.setFhReserva(null); // Fecha de reserva actual
             turno.setFhInicio(Timestamp.valueOf(inicio)); // Fecha de inicio del turno
@@ -200,7 +207,7 @@ public class TurnosService {
             turnos.add(turno);
 
             // Avanzamos 15 minutos para el siguiente turno
-            inicio = inicio.plusMinutes(duracionTurno);
+            inicio = inicio.plusMinutes(lineaAtencion.getDuracionTurno());
         }
 
         return turnos; // Retornamos los turnos generados para el día
@@ -219,28 +226,46 @@ public class TurnosService {
 
         }
 
-        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+        Optional<Turno> turno = Optional.ofNullable(cacheWithTTL.get(hashid));
 
-        if (!turno.isPresent()) {
+        if (turno.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PreseleccionarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno no existe.").code("400").build()).build());
         }
 
-        if (turno.get().getLocked()) {
+        if (Boolean.TRUE.equals(turno.get().getLocked())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PreseleccionarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno ya fue seleccionado.").code("400").build()).build());
         }
 
-        if (turno.get().getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO))) {
+       /* if (turno.get().getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PreseleccionarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("el turno ya esta confirmado.").code("400").build()).build());
+        }*/
+
+        Optional<Turno> turnoExistente = turnoRepository.findByFhInicioAndAgenda(turno.get().getFhInicio(), turno.get().getAgenda());
+
+        if (turnoExistente.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PreseleccionarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("el turno ya esta Preseleccionado.").code("400").build()).build());
         }
 
 
+        Optional<Agenda> agenda = agendaRepository.findById(turno.get().getAgenda().getId());
+
+        if (agenda.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PreseleccionarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Agenda no existe.").code("400").build()).build());
+        }
+
+
+        turno.get().setAgenda(agenda.get());
         turno.get().setLocked(true);
         turno.get().setLokedTime(LocalTime.now());
         turno.get().setUsuario(usuarioRepository.findByCorreo(Utils.getUserEmail()).get());
         turno.get().setEstadoTurno(estadoTurnoRepository.findById(3).get());
+        turno.get().setMediosPago(mediosPagosRepository.findById(1).get());
 
         // Guardar el cambio en la base de datos
         turnoRepository.save(turno.get());
+
+        cacheWithTTL.remove(hashid);
+
 
         // Programar la tarea para revertir el estado en dos minutos si no es confirmado
         programarRevertirEstadoTurno(turno.get(), 2);
@@ -251,33 +276,48 @@ public class TurnosService {
     }
 
     private void programarRevertirEstadoTurno(Turno turno, int minutos) {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        // Tarea que se ejecutará después del tiempo especificado
-        Runnable tareaRevertirTurno = () -> {
-            Turno turnoActual = turnoRepository.findById(turno.getId()).get();
-            revertirEstadoTurno(turnoActual); // Revertir el estado del turno si sigue bloqueado
-        };
+        log.info("Programando tarea para revertir el estado del turno en {} minutos.", minutos);
+        log.info("Turno a revertir: {}", turno);
 
-        // Programamos la tarea para que se ejecute después de "minutos" minutos
-        scheduler.schedule(tareaRevertirTurno, minutos, TimeUnit.MINUTES);
+            try {
+                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+                // Tarea que se ejecutará después del tiempo especificado
+                Runnable tareaRevertirTurno = () -> {
+                    Turno turnoActual = turnoRepository.findByUuid(turno.getUuid()).get();
+                    log.info("Ejecutando tarea para revertir el estado del turno: {}", turnoActual);
+                    revertirEstadoTurno(turnoActual); // Revertir el estado del turno si sigue bloqueado
+                };
+
+                // Programamos la tarea para que se ejecute después de "minutos" minutos
+                scheduler.schedule(tareaRevertirTurno, minutos, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                log.error("Error al programar la tarea para revertir el estado del turno: {}", e.getMessage());
+            }
+
+
     }
 
+
     public void revertirEstadoTurno(Turno turno) {
+            log.info("Revertir estado del turno: {}", turno);
 
+            try {
+                // Verificar si el turno aún está bloqueado y no ha sido confirmado
+                if (turno.getFhReserva() == null && turno.getLocked()) {
+                    log.info("Borrando Turno no confirmado...");
 
-        // Verificar si el turno aún está bloqueado y no ha sido confirmado
-        if (turno.getLocked() && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.PRE_SELECCIONADO))) {
-            turno.setLocked(false);
-            turno.setLokedTime(null);
-            turno.setUsuario(null); // Limpiar el campo del usuario
-            turno.setEstadoTurno(estadoTurnoRepository.findById(2).get()); // Cambiar el estado a "Generado"
-            // Limpiar el campo de la hora
-            turnoRepository.save(turno); // Guardar el estado revertido
-            log.info("El turno ha sido liberado después de 2 minutos: {}", turno.getId());
-        } else {
-            log.info("El turno ya fue confirmado antes de los 2 minutos: {}", turno.getId());
-        }
+                    turnoRepository.deleteByUuid(turno.getUuid()); // Guardar el estado revertido
+
+                    log.info("El turno ha sido liberado después de 2 minutos: {}", turno.getId());
+                } else {
+                    log.info("El turno ya fue confirmado antes de los 2 minutos: {}", turno.getId());
+                }
+            }catch (Exception e){
+                log.error("Error al revertir el estado del turno: {}", e.getMessage());
+            }
+
     }
 
     public ResponseEntity<ConfirmacionTurnoResponse> confirmarTurno(String hashid) {
@@ -381,6 +421,7 @@ public class TurnosService {
                 .rubro(turno.getAgenda().getLineaAtencion().getEmpresa().getRubro())
                 .direccion(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
                 .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
+                .cordenadas(Cordenadas.builder().latitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLatitud().toString()).longitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLongitud().toString()).build())
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())
                 .build();
 
@@ -442,6 +483,10 @@ public class TurnosService {
         }
 
         List<Turno> turnos = (List<Turno>) usuario.get().getTurnos();
+
+
+
+
         LocalDate today = LocalDate.now();
 
         log.info("hora actual: {}", today);
@@ -509,4 +554,117 @@ public class TurnosService {
 
 
     }
+
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosDisponiblesLineaAtencionAndFecha(Integer id, String fecha) {
+
+        Optional<LineaAtencion> lineaAtencion = lineaAtencionRepository.findById(id);
+
+        // Verificar la existencia de la linea de atención
+        if (lineaAtencion.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MultiEntityResponse.<TurnosResponse>builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.NOT_FOUND)
+                                    .title("Linea de atención no existe.")
+                                    .code("404")
+                                    .build())
+                            .build());
+        }
+
+        // Verificar si la linea está habilitada
+        if (!lineaAtencion.get().isHabilitado()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(MultiEntityResponse.<TurnosResponse>builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("Linea de atención no habilitada.")
+                                    .code("400")
+                                    .build())
+                            .build());
+        }
+
+        List<Ausencias> ausencias = lineaAtencion.get().getEmpresa().getCalendario().getAusencias();
+
+        // Validar que la fecha no esté en la lista de ausencias
+        ausencias.stream().filter(ausencia ->
+                ausencia.getDesde().toLocalDateTime().toLocalDate().isEqual(LocalDate.parse(fecha))
+        ).findFirst().ifPresent(ausencia -> {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MultiEntityResponse.<TurnosResponse>builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("Linea de atención no disponible en la fecha solicitada.")
+                                    .code("400")
+                                    .build())
+                            .build());
+        });
+
+        // Validar los días de atención
+        String diasSemanaAtencion = lineaAtencion.get().getEmpresa().getCalendario().getListaDiasLaborables();
+        List<Integer> diasAtencion = Arrays.stream(diasSemanaAtencion.split(";"))
+                .map(Integer::parseInt)
+                .toList();
+
+        if (!diasAtencion.contains(LocalDate.parse(fecha).getDayOfWeek().getValue())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(MultiEntityResponse.<TurnosResponse>builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("La empresa no trabaja habitualmente los días " +
+                                            DiaSemana.fromValor(LocalDate.parse(fecha).getDayOfWeek().getValue()).name())
+                                    .code("400")
+                                    .build())
+                            .build());
+        }
+
+        // Obtener el rango de horarios de atención
+        LocalTime horaInicio = lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toLocalTime();
+        LocalTime horaFin = lineaAtencion.get().getEmpresa().getCalendario().getHFin().toLocalTime();
+
+        // Obtener los turnos ya otorgados para la fecha solicitada
+        List<Turno> turnosYaOtorgados = lineaAtencion.get().getAgenda().getTurnos().stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(LocalDate.parse(fecha)))
+                .toList();
+
+        // Generar turnos para el día
+        List<Turno> turnosDisponibles = generarTurnosParaUnDia(
+                LocalDate.parse(fecha),
+                lineaAtencion.get(),
+                horaInicio.getHour(),
+                horaFin.getHour());
+
+        // Filtrar los turnos disponibles quitando los ya otorgados
+        turnosDisponibles = turnosDisponibles.stream()
+                .filter(turno -> turnosYaOtorgados.stream()
+                        .noneMatch(turnoYaOtorgado -> turnoYaOtorgado.getFhInicio().toLocalDateTime()
+                                .equals(turno.getFhInicio().toLocalDateTime())))
+                .toList();
+
+        // Construir la respuesta
+        List<TurnosResponse> finalTurnosDisponibles = new ArrayList<>();
+        turnosDisponibles.forEach(turno -> {
+
+            cacheWithTTL.put(turno.getUuid(), turno);
+
+            finalTurnosDisponibles.add(TurnosResponse.builder()
+                .hashid(turno.getUuid())
+                .duracion(lineaAtencion.get().getDuracionTurno())
+                .mensaje(lineaAtencion.get().getDescripccion())
+                .rubro(lineaAtencion.get().getEmpresa().getRubro())
+                .direccion(lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " +
+                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " +
+                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " +
+                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
+                .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
+                .nombreEmpresa(lineaAtencion.get().getEmpresa().getDatosFiscales().getNombreFantasia())
+                .build());
+        });
+
+
+
+        return ResponseEntity.ok(MultiEntityResponse.<TurnosResponse>builder().data(finalTurnosDisponibles).build());
+    }
+
+
+
 }
