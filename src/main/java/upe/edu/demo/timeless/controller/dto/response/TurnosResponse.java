@@ -24,8 +24,7 @@ public class TurnosResponse {
 
     private Cordenadas cordenadas;
 
-
-
+    private UsuarioTurnoOwner usuarioTurnoOwner;
     private Error error;
 
 }
