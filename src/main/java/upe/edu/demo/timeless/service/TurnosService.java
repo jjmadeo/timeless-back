@@ -423,6 +423,7 @@ public class TurnosService {
                 .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
                 .cordenadas(Cordenadas.builder().latitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLatitud().toString()).longitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLongitud().toString()).build())
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())
+                .usuarioTurnoOwner(turno.getUsuario()!=null?UsuarioTurnoOwner.builder().nombre(turno.getUsuario().getDatosPersonales().getNombre()).apellido(turno.getUsuario().getDatosPersonales().getApellido()).email(turno.getUsuario().getCorreo()).telefono(turno.getUsuario().getDatosPersonales().getTelefonoCelular()).build():null)
                 .build();
 
 
