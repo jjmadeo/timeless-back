@@ -36,6 +36,11 @@ public class TurnoController {
         return turnosService.getTurnosDisponiblesLineaAtencion(id,fecha);
     }
 
+    @GetMapping("/turnos/lineaAtencion/{id}")
+    public ResponseEntity<TurnosLineaAtencionResponse> getTurnosLineaByid(@PathVariable("id") Long id){
+        return turnosService.getTurnosLineaAtencion(id);
+    }
+
     // Actualizar un usuario existente
   /* @PutMapping("/empresa/{id}")
     public ResponseEntity<GenericResponse<UsuarioResponse>> updateUser(@PathVariable Long id, @RequestBody CrearEmpresaRequest user) {

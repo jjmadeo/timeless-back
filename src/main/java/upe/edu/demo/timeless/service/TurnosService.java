@@ -666,5 +666,55 @@ public class TurnosService {
     }
 
 
+    public ResponseEntity<TurnosLineaAtencionResponse> getTurnosLineaAtencion(Long id) {
 
+        if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.EMPRESA.name())) {
+
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.FORBIDDEN).title("No tiene permisos para realizar esta accion").code("403").build()).build());
+        }
+
+        Optional<LineaAtencion> lineaAtencion = lineaAtencionRepository.findById(Math.toIntExact(id));
+
+
+        if (lineaAtencion.isEmpty()) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Linea de atencion no existe.").code("400").build()).build());
+        }
+
+        List<Turno> turnos = (List<Turno>) lineaAtencion.get().getAgenda().getTurnos();
+
+
+
+
+        LocalDate today = LocalDate.now();
+
+        log.info("hora actual: {}", today);
+
+// Filtrar turnos de hoy
+        List<Turno> hoy = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today))
+                .toList();
+
+// Filtrar turnos futuros
+        List<Turno> futuros = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isAfter(today))
+                .toList();
+
+// Filtrar turnos pasados
+        List<Turno> pasados = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isBefore(today))
+                .toList();
+
+        log.info("Turnos hoy: {}", hoy);
+        log.info("Turnos futuros: {}", futuros);
+        log.info("Turnos pasados: {}", pasados);
+
+
+       return ResponseEntity.ok(TurnosLineaAtencionResponse.builder().hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList()).futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList()).pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList()).build());
+
+
+
+
+    }
 }
