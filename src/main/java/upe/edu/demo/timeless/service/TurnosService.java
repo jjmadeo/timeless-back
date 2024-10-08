@@ -677,6 +677,15 @@ public class TurnosService {
         Optional<LineaAtencion> lineaAtencion = lineaAtencionRepository.findById(Math.toIntExact(id));
 
 
+        Empresa empresa  = usuarioRepository.findByCorreo(Utils.getUserEmail()).get().getEmpresas().get(0);
+
+
+        if (!empresa.equals(lineaAtencion.get().getEmpresa())) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Linea de atencion no le pertenece.").code("400").build()).build());
+        }
+
+
         if (lineaAtencion.isEmpty()) {
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Linea de atencion no existe.").code("400").build()).build());
