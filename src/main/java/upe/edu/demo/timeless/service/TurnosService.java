@@ -375,7 +375,8 @@ public class TurnosService {
         }
         turno.get().setEstadoTurno(estadoTurnoRepository.findById(4).get());
 
-        turnoRepository.save(turno.get());
+      //  turnoRepository.save(turno.get());
+        turnoRepository.deleteByUuid(hashid);
 
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
@@ -494,7 +495,7 @@ public class TurnosService {
 
 // Filtrar turnos de hoy
         List<Turno> hoy = turnos.stream()
-                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today))
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today) && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO)))
                 .toList();
 
 // Filtrar turnos futuros
