@@ -375,7 +375,8 @@ public class TurnosService {
         }
         turno.get().setEstadoTurno(estadoTurnoRepository.findById(4).get());
 
-        turnoRepository.save(turno.get());
+      //  turnoRepository.save(turno.get());
+        turnoRepository.deleteByUuid(hashid);
 
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
