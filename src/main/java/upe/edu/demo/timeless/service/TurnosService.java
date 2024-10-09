@@ -680,6 +680,11 @@ public class TurnosService {
 
         Empresa empresa  = usuarioRepository.findByCorreo(Utils.getUserEmail()).get().getEmpresas().get(0);
 
+        if (lineaAtencion.isEmpty()) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Linea de atencion no existe.").code("400").build()).build());
+        }
+
 
         if (!empresa.equals(lineaAtencion.get().getEmpresa())) {
 
@@ -687,12 +692,10 @@ public class TurnosService {
         }
 
 
-        if (lineaAtencion.isEmpty()) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(TurnosLineaAtencionResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Linea de atencion no existe.").code("400").build()).build());
-        }
 
         List<Turno> turnos = (List<Turno>) lineaAtencion.get().getAgenda().getTurnos();
+
+        turnos = turnos.stream().filter(turno -> turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO))).toList();
 
 
 
