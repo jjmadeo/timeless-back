@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.controller.dto.request.Ausencia;
 import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
+import upe.edu.demo.timeless.controller.dto.request.ModificarEmpresaRequest;
 import upe.edu.demo.timeless.controller.dto.request.ParametroEmpresa;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.controller.dto.response.Error;
@@ -305,11 +306,85 @@ public class EmpresaService {
 
 
 
-    public ResponseEntity<GenericResponse<UsuarioResponse>> updateEmpresa(Long id, CrearEmpresaRequest user) {
+    public ResponseEntity< CrearEmpresaResponse> updateEmpresa(Long id, ModificarEmpresaRequest empresaRequest) {
 
-        // TODO Auto-generated method stub
 
-        return null;
+        Optional<Empresa> empresa = empresaRepository.findById(Math.toIntExact(id));
+
+        if (empresa.isEmpty()) {
+            log.error("La Empresa no existe.");
+            return ResponseEntity.badRequest().body(CrearEmpresaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La Empresa no existe.").code("400").build()).build());
+        }
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+
+        if (usuario.isEmpty()) {
+            log.error("El Usuario no existe.");
+            return ResponseEntity.badRequest().body(CrearEmpresaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El Usuario no existe.").code("400").build()).build());
+        }
+
+        if(usuario.get().getEmpresas().isEmpty() ||!empresa.get().getUsuario().equals(usuario.get())) {
+            log.error("Esta empresa no te pertenece");
+            return ResponseEntity.badRequest().body(CrearEmpresaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Esta empresa no te pertenece").code("400").build()).build());
+        }
+
+
+        empresa.get().setDatosFiscales(DatosFiscales.builder()
+                        .cuit(empresaRequest.getDatosFiscales().getCuit())
+                        .razonSocial(empresaRequest.getDatosFiscales().getRazonSocial())
+                        .nombreFantasia(empresaRequest.getDatosFiscales().getNombreFantasia())
+                        .domicilioFiscal(DomicilioFiscal.builder()
+                                .calle(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCalle())
+                                .numero(empresaRequest.getDatosFiscales().getDomicilioFiscal().getNumero())
+                                .localidad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLocalidad())
+                                .provincia(empresaRequest.getDatosFiscales().getDomicilioFiscal().getProvincia())
+                                .pais(empresaRequest.getDatosFiscales().getDomicilioFiscal().getPais())
+                                .ciudad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCiudad())
+                                .build())
+                        .build());
+        empresa.get().setCalendario(Calendario.builder()
+                .hInicio(Time.valueOf(empresaRequest.getCalendario().getHoraApertura()))
+                .hFin(Time.valueOf(empresaRequest.getCalendario().getHoraCierre()))
+                .listaDiasLaborables(empresaRequest.getCalendario().getDiasLaborales())
+                .build());
+
+
+
+        empresaRequest.getCalendario().getAusencias().forEach(ausencia -> {
+            empresa.get().getCalendario().addAusencias(Ausencias.builder()
+                    .desde(Utils.convertStringToTimestampDate(ausencia.getDesde()))
+                    .hasta(Utils.convertStringToTimestampDate(ausencia.getHasta()))
+                    .descripcion(ausencia.getDescripcion())
+                    .build());
+        });
+
+
+        empresaRequest.getLineasAtencion().forEach(linea -> {
+            LineaAtencion lineaAtencion =  LineaAtencion.builder()
+                    .descripccion(linea.getDescripcion())
+                    .habilitado(true)
+
+                    .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
+                    .build();
+
+            lineaAtencion.addAgenda(Agenda.builder().build());
+
+
+            empresa.get().addLineaAtencion(lineaAtencion);
+
+        });
+
+
+
+
+        empresaRepository.save(empresa.get());
+
+
+
+
+
+
+            return ResponseEntity.ok(CrearEmpresaResponse.builder().id(empresa.get().getId()).build());
 
     }
 
