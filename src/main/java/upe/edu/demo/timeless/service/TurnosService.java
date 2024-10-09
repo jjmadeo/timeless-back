@@ -494,7 +494,7 @@ public class TurnosService {
 
 // Filtrar turnos de hoy
         List<Turno> hoy = turnos.stream()
-                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today))
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today) && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO)))
                 .toList();
 
 // Filtrar turnos futuros
