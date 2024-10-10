@@ -13,12 +13,13 @@ RUN mvn clean package -DskipTests
 # Etapa 2: Crear la imagen de la aplicación
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /timeless
-
+# Establecer la variable de entorno TZ para configurar la zona horaria
+ENV TZ=America/Argentina/Buenos_Aires
 # Copia el JAR generado desde la etapa anterior
 COPY --from=build /timeless/target/*.jar timeless.jar
 
-# Expone el puerto 8080 para la aplicación Spring Boot
-EXPOSE 8080
+# Exponer puertos para la aplicación y el debugger
+EXPOSE 8080 5005
 
-# Define el comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "/timeless/timeless.jar"]
+# Define el comando para ejecutar la aplicación con soporte para debugging remoto
+ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-jar", "/timeless/timeless.jar"]

@@ -1,18 +1,21 @@
 package upe.edu.demo.timeless.shared.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.FastMath;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
+@Slf4j
 public class Utils {
-
 
 
 
@@ -87,4 +90,42 @@ public class Utils {
         // Si no hay autoridades, retornar null o un valor por defecto
         return null;
     }
+
+    public static boolean isInRadius(BigDecimal latitud, BigDecimal longitud, double lat, double lon, double radio) {
+
+        double distance = haversine(latitud.doubleValue(), longitud.doubleValue(), lat, lon);
+
+        //redondear distancia a 1 decimal.
+        distance = Math.round(distance * 10.0) / 10.0;
+
+        distance= distance*1.50;
+       log.info("Distance: " + distance + " km");
+        return distance <= radio;
+
+    }
+
+    private static final double EARTH_RADIUS = 6371.0; // Radio de la Tierra en km
+
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = FastMath.sin(dLat / 2) * FastMath.sin(dLat / 2) +
+                FastMath.cos(Math.toRadians(lat1)) * FastMath.cos(Math.toRadians(lat2)) *
+                        FastMath.sin(dLon / 2) * FastMath.sin(dLon / 2);
+        double c = 2 * FastMath.atan2(FastMath.sqrt(a), FastMath.sqrt(1 - a));
+        return EARTH_RADIUS * c; // Distancia en km
+    }
+
+    public static void main(String[] args) {
+
+    }
+
+    public static int obtenerDiaSemanaHoy() {
+        // Obtiene la fecha actual
+        LocalDate fechaHoy = LocalDate.now();
+        // Obtiene el día de la semana como número (1 = Lunes, 7 = Domingo)
+        DayOfWeek dayOfWeek = fechaHoy.getDayOfWeek();
+        return dayOfWeek.getValue();  // getValue() devuelve 1 para lunes y 7 para domingo
+    }
+
 }

@@ -14,7 +14,7 @@ public class LineaAtencion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Integer id;
 
     @Basic
     @Column(name = "descripccion", nullable = false, length = 50)
@@ -25,11 +25,11 @@ public class LineaAtencion {
     @Basic
     @Column(name = "habilitado", nullable = false)
     private boolean habilitado;
-    @OneToOne(mappedBy = "lineaAtencion",cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "lineaAtencion",cascade = CascadeType.ALL)
     private Agenda agenda;
 
     @ToString.Exclude
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_empresa", referencedColumnName = "id", nullable = false)
     private Empresa empresa;
 

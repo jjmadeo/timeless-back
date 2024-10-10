@@ -10,9 +10,13 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LineaAtencion {
-    private Integer id;
+public class LocalityRequest {
 
-    private String descripcion;
-    private String duracionTurnos;
+    private Integer id;
+    private String tipo;
+    private String longitud;
+    private String latitud;
+
+
+
 }

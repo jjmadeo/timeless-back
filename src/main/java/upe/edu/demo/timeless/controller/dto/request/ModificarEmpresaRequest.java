@@ -6,13 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
 @Data
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LineaAtencion {
-    private Integer id;
+public class ModificarEmpresaRequest {
 
-    private String descripcion;
-    private String duracionTurnos;
+
+
+    private DatosFiscales datosFiscales; 
+
+    private Calendario calendario;
+
+    private List<LineaAtencion> lineasAtencion;
+
+
+
 }

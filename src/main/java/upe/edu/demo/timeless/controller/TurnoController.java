@@ -27,11 +27,19 @@ public class TurnoController {
     }
 
     @GetMapping("/turnosEmpresa/{id}")
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosEmpresa(@PathVariable("id") Long id){
-        return turnosService.getTurnosDisponiblesEmpresa(id);
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosEmpresa(@PathVariable("id") Long id, @Param("fecha") String fecha){
+        return turnosService.getTurnosDisponiblesEmpresa(id,fecha);
     }
 
+    @GetMapping("/turnosLineaAtencion/{id}")
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLinea(@PathVariable("id") Integer id, @Param("fecha") String fecha){
+        return turnosService.getTurnosDisponiblesLineaAtencion(id,fecha);
+    }
 
+    @GetMapping("/turnos/lineaAtencion/{id}")
+    public ResponseEntity<TurnosLineaAtencionResponse> getTurnosLineaByid(@PathVariable("id") Long id){
+        return turnosService.getTurnosLineaAtencion(id);
+    }
 
     // Actualizar un usuario existente
   /* @PutMapping("/empresa/{id}")
@@ -68,13 +76,17 @@ public class TurnoController {
 
     }
 
-   /* // Eliminar un usuario por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/turnosByUser")
+    public ResponseEntity<TurnosResponseUser> getturnosByUser(){
+        return turnosService.getTurnosDisponiblesUser();
     }
-    */
-    
+
+    @GetMapping("/VisualizarTurnosDisponibles/{id}")
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLineaAtencion(@PathVariable("id") Integer id, @RequestParam("desde") String fechadesde, @RequestParam("hasta") String fechahasta){
+        return turnosService.getTurnosDisponiblesLineaAtencionAndFecha(id,fechadesde,fechahasta);
+    }
+
+
+
 
 }

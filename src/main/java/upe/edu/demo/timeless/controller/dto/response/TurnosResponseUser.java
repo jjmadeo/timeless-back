@@ -7,24 +7,22 @@ import lombok.Data;
 import lombok.ToString;
 import upe.edu.demo.timeless.model.Rubro;
 
+import java.util.List;
+
 @Data
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class TurnosResponse {
-    private Long id;
+public class TurnosResponseUser {
 
-    private String hashid;
-    private String mensaje;
-    private String fechaHora;
-    private String direccion;
-    private Integer duracion;
-    private Rubro rubro;
-    private String nombreEmpresa;
 
-    private Cordenadas cordenadas;
 
-    private UsuarioTurnoOwner usuarioTurnoOwner;
+    List<TurnosResponse> hoy;
+    List<TurnosResponse> futuros;
+    List<TurnosResponse> pasados;
+
+
+
     private Error error;
 
 }

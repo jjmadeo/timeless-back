@@ -6,15 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Data
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DomicilioFiscal {
+    private Long id;
     private String calle;
     private String numero;
     private String ciudad;
     private String localidad;
     private String provincia;
     private String pais;
+    private BigDecimal latitud;
+    private BigDecimal longitud;
+
 }

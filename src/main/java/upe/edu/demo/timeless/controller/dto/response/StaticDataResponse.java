@@ -5,26 +5,21 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+import upe.edu.demo.timeless.model.EstadoTurno;
 import upe.edu.demo.timeless.model.Rubro;
+import upe.edu.demo.timeless.model.TipoDocumento;
+import upe.edu.demo.timeless.model.TipoUsuario;
 
+import java.util.List;
 @Data
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class TurnosResponse {
-    private Long id;
+public class StaticDataResponse {
 
-    private String hashid;
-    private String mensaje;
-    private String fechaHora;
-    private String direccion;
-    private Integer duracion;
-    private Rubro rubro;
-    private String nombreEmpresa;
 
-    private Cordenadas cordenadas;
 
-    private UsuarioTurnoOwner usuarioTurnoOwner;
-    private Error error;
-
+    private List<Rubro> rubro;
+    private List<TipoDocumento> tipoDocumentos;
+    private List<TipoUsuario> tipoUsuarios;
 }

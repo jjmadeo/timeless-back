@@ -14,6 +14,7 @@ import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
 import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
+import upe.edu.demo.timeless.repository.TurnoRepository;
 import upe.edu.demo.timeless.repository.UsuarioRepository;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.TipoDniEnum;
@@ -21,6 +22,7 @@ import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -31,6 +33,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final TipoUsuarioRepository tipoUsuarioRepository;
     private final TipoDocumentoRepository tipoDocumentoRepository;
+    private final TurnoRepository turnoRepository;
 
     public Usuario findByUsername(String correo) {
         return usuarioRepository.findByCorreo(correo).orElseThrow();
@@ -142,6 +145,8 @@ public class UsuarioService {
                         .pais(usuario.getDatosPersonales().getDomicilio().getPais())
                         .localidad(usuario.getDatosPersonales().getDomicilio().getLocalidad())
                         .provincia(usuario.getDatosPersonales().getDomicilio().getProvincia())
+                        .latitud(usuario.getDatosPersonales().getDomicilio().getLatitud())
+                        .longitud(usuario.getDatosPersonales().getDomicilio().getLongitud())
                         .build())
                 .configUsuarioGeneral(ConfigUsuarioGeneralResponse.builder()
                         .email(usuario.getConfigUsuarioGeneral().isEmail())
@@ -225,4 +230,69 @@ public class UsuarioService {
 
         return ResponseEntity.ok(mapToUserResponse(usuario));
     }
+
+    public ResponseEntity<UsuarioResponse> obtenerUsuarioPorTurnoOtorgado(String hashid) {
+
+        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+
+        if(turno.isEmpty()){
+            return ResponseEntity.badRequest().body(UsuarioResponse.builder().error(Error.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .title("Turno no encontrado")
+                            .code("400")
+                            .build()).build());
+        }
+
+
+        Optional<Usuario> usuario = Optional.ofNullable(turno.get().getUsuario());
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.badRequest().body(UsuarioResponse.builder().error(Error.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .title("Usuario Este turno no tiene asociado un usuario")
+                            .code("400")
+                            .build()).build());
+        }
+
+
+
+
+        return ResponseEntity.ok(mapToUserResponse(turno.get().getUsuario()));
+
+
+
+
+    }
+
+
+    /*public ResponseEntity<GenericResponse<String>> deleteUser() {
+
+        String email = Utils.getUserEmail();
+
+       String tipoUser = Utils.getFirstAuthority();
+
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(email);
+
+
+
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.badRequest().body(GenericResponse.<String>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no encontrado").code("400").build()).build());
+        }
+
+        log.info("Usuario eliminado.{}", usuario.get());
+
+        usuarioRepository.delete(usuario.get());
+
+
+
+        return ResponseEntity.ok(GenericResponse.<String>builder().data("Usuario eliminado con exito").build());
+
+
+
+
+
+
+    }*/
 }

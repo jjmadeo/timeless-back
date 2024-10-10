@@ -2,9 +2,11 @@ package upe.edu.demo.timeless.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
+import upe.edu.demo.timeless.controller.dto.request.ModificarEmpresaRequest;
 import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.service.EmpresaService;
@@ -25,10 +27,7 @@ public class EmpresaController {
         return empresaService.getAllEmpresas();
     }
 
-    @GetMapping("/prueba")
-    public ResponseEntity<?> gtest(){
-        return empresaService.test();
-    }
+
 
    @GetMapping("/empresa/{id}")
     public ResponseEntity<EmpresaResponse> getUsuarioById(@PathVariable Long id) {
@@ -48,13 +47,20 @@ public class EmpresaController {
 
     }
 
-   /* // Eliminar un usuario por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+
+   @GetMapping("/empresasByLocation")
+    public ResponseEntity<MultiEntityResponse<EmpresaResponse>> getEmpresasByLocation(@Param("lon") String lon, @Param("lat") String lat, @Param("distance") String distance,@Param("rubro") String rubro) {
+        return empresaService.getEmpresasByLocation(lon, lat, distance, rubro);
     }
-    */
-    
+
+
+    @PutMapping("/empresa/{id}")
+    public ResponseEntity<CrearEmpresaResponse> updateEmpresa(@PathVariable Long id, @RequestBody ModificarEmpresaRequest empresaRequest) {
+        return empresaService.updateEmpresa(id, empresaRequest);
+    }
+
+
+
+
 
 }

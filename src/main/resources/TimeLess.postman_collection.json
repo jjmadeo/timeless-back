@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"correo\":\"usuario@gmail.com\",\r\n\"clave\":\"1234\",\r\n\"tipoUsuario\":\"GENERAL\",\r\n    \"datosPersonales\":{\r\n        \"nombre\":\"Juan Jose\",\r\n        \"apellido\":\"Madeo\",\r\n        \"numeroDocumento\":\"38589765\",\r\n        \"tipoDocumento\":\"DNI\",\r\n        \"telefonoCelular\":\"1150698176\",\r\n        \"fNacimiento\":\"16-01-1995\"\r\n        \r\n    },\r\n    \"domicilio\":{\r\n        \"calle\":\"Almafuerte\",\r\n        \"numero\":\"2354\",\r\n        \"ciudad\":\"GBA\",\r\n        \"localidad\":\"Luis Guillon\",\r\n        \"provincia\":\"Buenos Aires\",\r\n        \"pais\":\"Argentina\"        \r\n    }\r\n}\r\n",
+					"raw": "{\r\n\"correo\":\"empresa8@gmail.com\",\r\n\"clave\":\"1234\",\r\n\"tipoUsuario\":\"EMPRESA\",\r\n    \"datosPersonales\":{\r\n        \"nombre\":\"Juan Jose\",\r\n        \"apellido\":\"Madeo\",\r\n        \"numeroDocumento\":\"38589765\",\r\n        \"tipoDocumento\":\"DNI\",\r\n        \"telefonoCelular\":\"1150698176\",\r\n        \"fNacimiento\":\"16-01-1995\"\r\n        \r\n    },\r\n    \"domicilio\":{\r\n        \"calle\":\"Almafuerte\",\r\n        \"numero\":\"2354\",\r\n        \"ciudad\":\"GBA\",\r\n        \"localidad\":\"Luis Guillon\",\r\n        \"provincia\":\"Buenos Aires\",\r\n        \"pais\":\"Argentina\"        \r\n    }\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -53,7 +53,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{   \r\n  \"datos_fiscales\": {\r\n    \"razon_social\": \"Empresa XYZ S.A.\",\r\n    \"nombre_fantasia\": \"XYZ Solutions\",\r\n    \"cuit\": \"30-12346579-9\",\r\n    \"domicilio_fiscal\": {\r\n      \"calle\": \"Av. Siempre Viva\",\r\n      \"numero\": \"742\",\r\n      \"ciudad\": \"Springfield\",\r\n      \"localidad\": \"Springfield\",\r\n      \"provincia\": \"Buenos Aires\",\r\n      \"pais\": \"Argentina\"\r\n    }\r\n  },\r\n  \"parametros\": [\r\n    {\r\n      \"clave\": \"margen_ganancia\",\r\n      \"valor\": \"10%\",\r\n      \"descripcion\": \"Margen de ganancia sobre cada operación\"\r\n    },\r\n    {\r\n      \"clave\": \"descuento_temporada\",\r\n      \"valor\": \"15%\",\r\n      \"descripcion\": \"Descuento aplicado durante la temporada alta\"\r\n    }\r\n  ],\r\n  \"calendario\": {\r\n    \"hora_apertura\": \"09:00:00\",\r\n    \"hora_cierre\": \"18:00:00\",\r\n    \"dias_laborales\": \"Lunes a Viernes\",\r\n    \"ausencias\": [\r\n      {\r\n        \"desde\": \"2024-09-10\",\r\n        \"hasta\": \"2024-09-12\",\r\n        \"descripcion\": \"Vacaciones de personal\"\r\n      },\r\n      {\r\n        \"desde\": \"2024-12-24\",\r\n        \"hasta\": \"2024-12-25\",\r\n        \"descripcion\": \"Festividades de Navidad\"\r\n      }\r\n    ]\r\n  },\r\n  \"lineas_atencion\": [\r\n    {\r\n      \"rubro\": \"BARBERIA\",\r\n      \"descripcion\": \"Soporte técnico y desarrollo de software\",\r\n      \"duracion_turnos\": \"45\"\r\n    },\r\n    {\r\n      \"rubro\": \"MANICURA\",\r\n      \"descripcion\": \"Consultoría en estrategias de marketing\",\r\n      \"duracion_turnos\": \"15\"\r\n    }\r\n  ]\r\n}\r\n",
+					"raw": "{   \r\n  \"datos_fiscales\": {\r\n    \"razon_social\": \"Empresa XYZ S.A.\",\r\n    \"nombre_fantasia\": \"XYZ Solutions\",\r\n    \"cuit\": \"30-32342579-9\",\r\n    \"domicilio_fiscal\": {\r\n      \"calle\": \"Av. Siempre Viva\",\r\n      \"numero\": \"742\",\r\n      \"ciudad\": \"Springfield\",\r\n      \"localidad\": \"Springfield\",\r\n      \"provincia\": \"Buenos Aires\",\r\n      \"pais\": \"Argentina\"\r\n    }\r\n  },\r\n  \"parametros\": [],\r\n  \"calendario\": {\r\n    \"hora_apertura\": \"09:00:00\",\r\n    \"hora_cierre\": \"18:00:00\",\r\n    \"dias_laborales\": \"Lunes a Viernes\",\r\n    \"ausencias\": [\r\n      {\r\n        \"desde\": \"2024-09-10\",\r\n        \"hasta\": \"2024-09-12\",\r\n        \"descripcion\": \"Vacaciones de personal\"\r\n      },\r\n      {\r\n        \"desde\": \"2024-12-24\",\r\n        \"hasta\": \"2024-12-25\",\r\n        \"descripcion\": \"Festividades de Navidad\"\r\n      }\r\n    ]\r\n  },\r\n  \"lineas_atencion\": [\r\n    {\r\n      \r\n      \"descripcion\": \"Soporte técnico y desarrollo de software\",\r\n      \"duracion_turnos\": \"45\"\r\n    },\r\n    {\r\n      \r\n      \"descripcion\": \"Consultoría en estrategias de marketing\",\r\n      \"duracion_turnos\": \"15\"\r\n    }\r\n  ],\r\n  \"rubro\": \"BARBERIA\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -93,7 +93,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"idlineaAtencion\":2,\r\n  \"fechaDesde\": \"2024-09-18T09:00:00\",\r\n  \"fechaHasta\": \"2024-09-20T17:00:00\"\r\n}",
+					"raw": "{\r\n  \"idlineaAtencion\":1,\r\n  \"fechaDesde\": \"2024-09-29T09:00:00\",\r\n  \"fechaHasta\": \"2024-10-03T17:00:00\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -132,7 +132,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8082/v1/timeless/preselccionarTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"raw": "http://localhost:8082/v1/timeless/preselccionarTurno/4e6e1bd8-ec14-4255-8631-d6236f84c359",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -142,7 +142,7 @@
 						"v1",
 						"timeless",
 						"preselccionarTurno",
-						"722f73f6-9d1d-4fdd-a799-04758643debb"
+						"4e6e1bd8-ec14-4255-8631-d6236f84c359"
 					]
 				}
 			},
@@ -164,7 +164,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8082/v1/timeless/ConfirmarTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"raw": "http://localhost:8082/v1/timeless/ConfirmarTurno/4e6e1bd8-ec14-4255-8631-d6236f84c359",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -174,7 +174,47 @@
 						"v1",
 						"timeless",
 						"ConfirmarTurno",
-						"722f73f6-9d1d-4fdd-a799-04758643debb"
+						"4e6e1bd8-ec14-4255-8631-d6236f84c359"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "setLocation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 4,\r\n  \"tipo\": \"usuario\",\r\n  \"longitud\": \"-58.381559\",\r\n  \"latitud\": \"-34.603684\"\r\n}\r\n\r\n\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/locality",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"locality"
 					]
 				}
 			},
@@ -275,7 +315,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"correo\":\"usuario@gmail.com\",\r\n    \"clave\":\"1234\"\r\n}\r\n",
+					"raw": "{\r\n    \"correo\":\"empresa1@gmail.com\",\r\n    \"clave\":\"1234\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -331,6 +371,178 @@
 			"response": []
 		},
 		{
+			"name": "getUsuarioByTurno",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/UsuarioByTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"UsuarioByTurno",
+						"722f73f6-9d1d-4fdd-a799-04758643debb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTurnosByUsuario",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/UsuarioByTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"UsuarioByTurno",
+						"722f73f6-9d1d-4fdd-a799-04758643debb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EliminarUsaurio",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/UsuarioByTurno/722f73f6-9d1d-4fdd-a799-04758643debb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"UsuarioByTurno",
+						"722f73f6-9d1d-4fdd-a799-04758643debb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTurnosByIDempresa",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/turnosEmpresa/1?fecha=2024-09-30",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"turnosEmpresa",
+						"1"
+					],
+					"query": [
+						{
+							"key": "fecha",
+							"value": "2024-09-30"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTurnosByIDLinea",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/turnosLineaAtencion/1?fecha=2024-09-30",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"turnosLineaAtencion",
+						"1"
+					],
+					"query": [
+						{
+							"key": "fecha",
+							"value": "2024-09-30"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GetEmpresaByID",
 			"request": {
 				"auth": {
@@ -346,7 +558,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8082/v1/timeless/empresa/4",
+					"raw": "http://localhost:8082/v1/timeless/empresa/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -356,7 +568,7 @@
 						"v1",
 						"timeless",
 						"empresa",
-						"4"
+						"2"
 					]
 				}
 			},
@@ -391,7 +603,206 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "getPerfil",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/v1/timeless/perfil",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"timeless",
+								"perfil"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 22 Sep 2024 01:16:24 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 3,\n    \"correo\": \"usuario@gmail.com\",\n    \"fh_creacion\": \"2024-09-18T00:00:40.000+00:00\",\n    \"activo\": true,\n    \"tipo_usuario\": \"GENERAL\",\n    \"datos_personales\": {\n        \"nombre\": \"Juan Jose\",\n        \"apellido\": \"Madeo\",\n        \"numero_documento\": \"38589765\",\n        \"tipo_documento\": \"DNI\",\n        \"telefono_celular\": \"1150698176\",\n        \"fnacimiento\": \"16-01-1995\"\n    },\n    \"domicilio\": {\n        \"calle\": \"Almafuerte\",\n        \"numero\": \"2354\",\n        \"ciudad\": \"GBA\",\n        \"localidad\": \"Luis Guillon\",\n        \"provincia\": \"Buenos Aires\",\n        \"pais\": \"Argentina\"\n    },\n    \"config_usuario_general\": {\n        \"email\": true,\n        \"wpp\": true,\n        \"sms\": true\n    },\n    \"id_empresa\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "staticData",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/staticData",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"staticData"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "getPerfil",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/v1/timeless/perfil",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"v1",
+								"timeless",
+								"perfil"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 22 Sep 2024 01:16:24 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 3,\n    \"correo\": \"usuario@gmail.com\",\n    \"fh_creacion\": \"2024-09-18T00:00:40.000+00:00\",\n    \"activo\": true,\n    \"tipo_usuario\": \"GENERAL\",\n    \"datos_personales\": {\n        \"nombre\": \"Juan Jose\",\n        \"apellido\": \"Madeo\",\n        \"numero_documento\": \"38589765\",\n        \"tipo_documento\": \"DNI\",\n        \"telefono_celular\": \"1150698176\",\n        \"fnacimiento\": \"16-01-1995\"\n    },\n    \"domicilio\": {\n        \"calle\": \"Almafuerte\",\n        \"numero\": \"2354\",\n        \"ciudad\": \"GBA\",\n        \"localidad\": \"Luis Guillon\",\n        \"provincia\": \"Buenos Aires\",\n        \"pais\": \"Argentina\"\n    },\n    \"config_usuario_general\": {\n        \"email\": true,\n        \"wpp\": true,\n        \"sms\": true\n    },\n    \"id_empresa\": null\n}"
+				}
+			]
 		},
 		{
 			"name": "GetUsaurios",
@@ -481,6 +892,55 @@
 						"v1",
 						"timeless",
 						"empresas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmpresasByLocation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/v1/timeless/empresasByLocation?lon=-58.4505171&lat=-34.8008234&distance=6.0&rubro=BARBERIA",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"v1",
+						"timeless",
+						"empresasByLocation"
+					],
+					"query": [
+						{
+							"key": "lon",
+							"value": "-58.4505171"
+						},
+						{
+							"key": "lat",
+							"value": "-34.8008234"
+						},
+						{
+							"key": "distance",
+							"value": "6.0"
+						},
+						{
+							"key": "rubro",
+							"value": "BARBERIA"
+						}
 					]
 				}
 			},
