@@ -1,16 +1,11 @@
 package upe.edu.demo.timeless.service;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import upe.edu.demo.timeless.controller.dto.request.Ausencia;
-import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
 import upe.edu.demo.timeless.controller.dto.request.GenerarTurnosRequest;
-import upe.edu.demo.timeless.controller.dto.request.ParametroEmpresa;
 import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
@@ -19,16 +14,12 @@ import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
 import upe.edu.demo.timeless.shared.utils.enums.EstadoTurnoEnum;
-import upe.edu.demo.timeless.shared.utils.enums.MembresiaEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -349,6 +340,8 @@ public class TurnosService {
             turno.get().setLocked(false);
             turno.get().setLokedTime(null);
             turnoRepository.save(turno.get());
+
+
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El turno ya fue confirmado.").code("400").build()).build());
@@ -521,7 +514,7 @@ public class TurnosService {
 
     }
 
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Long id, String fecha) {
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Integer id, String fecha) {
 
         log.info("Buscando turnos disponibles para la Linea de atencion con ID: {}, fecha {}", id, fecha);
 
@@ -557,7 +550,7 @@ public class TurnosService {
 
     }
 
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosDisponiblesLineaAtencionAndFecha(Integer id, String fecha) {
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosDisponiblesLineaAtencionAndFecha(Integer id, String fecha, String fechahasta) {
 
         Optional<LineaAtencion> lineaAtencion = lineaAtencionRepository.findById(id);
 
@@ -587,85 +580,86 @@ public class TurnosService {
 
         List<Ausencias> ausencias = lineaAtencion.get().getEmpresa().getCalendario().getAusencias();
 
-        // Validar que la fecha no esté en la lista de ausencias
-        ausencias.stream().filter(ausencia ->
-                ausencia.getDesde().toLocalDateTime().toLocalDate().isEqual(LocalDate.parse(fecha))
-        ).findFirst().ifPresent(ausencia -> {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    MultiEntityResponse.<TurnosResponse>builder()
-                            .error(Error.builder()
-                                    .status(HttpStatus.BAD_REQUEST)
-                                    .title("Linea de atención no disponible en la fecha solicitada.")
-                                    .code("400")
-                                    .build())
-                            .build());
-        });
-
         // Validar los días de atención
         String diasSemanaAtencion = lineaAtencion.get().getEmpresa().getCalendario().getListaDiasLaborables();
         List<Integer> diasAtencion = Arrays.stream(diasSemanaAtencion.split(";"))
                 .map(Integer::parseInt)
                 .toList();
 
-        if (!diasAtencion.contains(LocalDate.parse(fecha).getDayOfWeek().getValue())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(MultiEntityResponse.<TurnosResponse>builder()
-                            .error(Error.builder()
-                                    .status(HttpStatus.BAD_REQUEST)
-                                    .title("La empresa no trabaja habitualmente los días " +
-                                            DiaSemana.fromValor(LocalDate.parse(fecha).getDayOfWeek().getValue()).name())
-                                    .code("400")
-                                    .build())
-                            .build());
-        }
+        log.info("Fecja inicio:{}" , fecha);
+        log.info("Fecja hasta:{}" , fechahasta);
+        // Obtener el rango de fechas desde y hasta
+        LocalDate fechaInicio = LocalDate.parse(fecha);
+        LocalDate fechaFin = LocalDate.parse(fechahasta);
 
         // Obtener el rango de horarios de atención
         LocalTime horaInicio = lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toLocalTime();
         LocalTime horaFin = lineaAtencion.get().getEmpresa().getCalendario().getHFin().toLocalTime();
 
-        // Obtener los turnos ya otorgados para la fecha solicitada
-        List<Turno> turnosYaOtorgados = lineaAtencion.get().getAgenda().getTurnos().stream()
-                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(LocalDate.parse(fecha)))
-                .toList();
-
-        // Generar turnos para el día
-        List<Turno> turnosDisponibles = generarTurnosParaUnDia(
-                LocalDate.parse(fecha),
-                lineaAtencion.get(),
-                horaInicio.getHour(),
-                horaFin.getHour());
-
-        // Filtrar los turnos disponibles quitando los ya otorgados
-        turnosDisponibles = turnosDisponibles.stream()
-                .filter(turno -> turnosYaOtorgados.stream()
-                        .noneMatch(turnoYaOtorgado -> turnoYaOtorgado.getFhInicio().toLocalDateTime()
-                                .equals(turno.getFhInicio().toLocalDateTime())))
-                .toList();
-
-        // Construir la respuesta
+        // Lista de turnos disponibles final
         List<TurnosResponse> finalTurnosDisponibles = new ArrayList<>();
-        turnosDisponibles.forEach(turno -> {
 
-            cacheWithTTL.put(turno.getUuid(), turno);
+        // Iterar sobre cada día en el rango
+        for (LocalDate currentDate = fechaInicio; !currentDate.isAfter(fechaFin); currentDate = currentDate.plusDays(1)) {
 
-            finalTurnosDisponibles.add(TurnosResponse.builder()
-                .hashid(turno.getUuid())
-                .duracion(lineaAtencion.get().getDuracionTurno())
-                .mensaje(lineaAtencion.get().getDescripccion())
-                .rubro(lineaAtencion.get().getEmpresa().getRubro())
-                .direccion(lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " +
-                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " +
-                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " +
-                        lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
-                .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
-                .nombreEmpresa(lineaAtencion.get().getEmpresa().getDatosFiscales().getNombreFantasia())
-                .build());
-        });
+            // Validar si el día actual es un día laborable para la empresa
+            int diaSemana = currentDate.getDayOfWeek().getValue(); // 1 = Lunes, 7 = Domingo
+            if (!diasAtencion.contains(diaSemana)) {
+                continue; // Si no es día laborable, pasar al siguiente día
+            }
 
+            // Validar que la fecha actual no esté en la lista de ausencias
+            LocalDate finalCurrentDate = currentDate;
+            boolean fechaEnAusencia = ausencias.stream()
+                    .anyMatch(ausencia -> ausencia.getDesde().toLocalDateTime().toLocalDate().isEqual(finalCurrentDate));
+            if (fechaEnAusencia) {
+                continue; // Si la fecha está en ausencias, pasar al siguiente día
+            }
 
+            // Obtener los turnos ya otorgados para la fecha actual
+            LocalDate finalCurrentDate1 = currentDate;
+            List<Turno> turnosYaOtorgados = lineaAtencion.get().getAgenda().getTurnos().stream()
+                    .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(finalCurrentDate1))
+                    .toList();
 
+            // Generar turnos para el día actual
+            List<Turno> turnosDisponibles = generarTurnosParaUnDia(
+                    currentDate,
+                    lineaAtencion.get(),
+                    horaInicio.getHour(),
+                    horaFin.getHour());
+
+            // Filtrar los turnos disponibles quitando los ya otorgados
+            turnosDisponibles = turnosDisponibles.stream()
+                    .filter(turno -> turnosYaOtorgados.stream()
+                            .noneMatch(turnoYaOtorgado -> turnoYaOtorgado.getFhInicio().toLocalDateTime()
+                                    .equals(turno.getFhInicio().toLocalDateTime())))
+                    .toList();
+
+            // Construir la respuesta para los turnos disponibles de ese día
+            turnosDisponibles.forEach(turno -> {
+
+                cacheWithTTL.put(turno.getUuid(), turno);
+
+                finalTurnosDisponibles.add(TurnosResponse.builder()
+                        .hashid(turno.getUuid())
+                        .duracion(lineaAtencion.get().getDuracionTurno())
+                        .mensaje(lineaAtencion.get().getDescripccion())
+                        .rubro(lineaAtencion.get().getEmpresa().getRubro())
+                        .direccion(lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " +
+                                lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " +
+                                lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " +
+                                lineaAtencion.get().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
+                        .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
+                        .nombreEmpresa(lineaAtencion.get().getEmpresa().getDatosFiscales().getNombreFantasia())
+                        .build());
+            });
+        }
+
+        // Devolver la lista de turnos disponibles en el rango solicitado
         return ResponseEntity.ok(MultiEntityResponse.<TurnosResponse>builder().data(finalTurnosDisponibles).build());
     }
+
 
 
     public ResponseEntity<TurnosLineaAtencionResponse> getTurnosLineaAtencion(Long id) {

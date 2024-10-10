@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Ausencia {
+    private Integer id;
     private String desde;
     private String hasta;
     private String descripcion;

@@ -13,7 +13,7 @@ public class Ausencias {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Integer id;
     @Column(name = "desde", nullable = false)
     private Timestamp desde;
     @Column(name = "hasta", nullable = false)
