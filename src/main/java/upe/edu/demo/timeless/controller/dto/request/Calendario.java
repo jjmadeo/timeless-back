@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Calendario {
-
+    private Integer id;
     private String horaApertura;
 
     private String horaCierre;

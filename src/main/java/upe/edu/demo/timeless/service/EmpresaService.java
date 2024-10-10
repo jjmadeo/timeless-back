@@ -36,6 +36,7 @@ public class EmpresaService {
     private final UsuarioRepository usuarioRepository;
     private final MembresiaRepository membresiaRepository;
     private final RubroRepository rubroRepository;
+    private final LineaAtencionRepository lineaAtencionRepository;
 
 
     public ResponseEntity<CrearEmpresaResponse> crearEmpresaProcess(CrearEmpresaRequest empresaRequest) {
@@ -216,10 +217,12 @@ public class EmpresaService {
                                 .build())
                         .build())
                 .datosFiscales(upe.edu.demo.timeless.controller.dto.request.DatosFiscales.builder()
+                        .id(empresa.getDatosFiscales().getId())
                         .cuit(empresa.getDatosFiscales().getCuit())
                         .razonSocial(empresa.getDatosFiscales().getRazonSocial())
                         .nombreFantasia(empresa.getDatosFiscales().getNombreFantasia())
                         .domicilioFiscal(upe.edu.demo.timeless.controller.dto.request.DomicilioFiscal.builder()
+                                .id((long) empresa.getDatosFiscales().getDomicilioFiscal().getId())
                                 .calle(empresa.getDatosFiscales().getDomicilioFiscal().getCalle())
                                 .numero(empresa.getDatosFiscales().getDomicilioFiscal().getNumero())
                                 .localidad(empresa.getDatosFiscales().getDomicilioFiscal().getLocalidad())
@@ -232,6 +235,7 @@ public class EmpresaService {
                         .build())
                 .parametros(mapParametros(empresa.getParametrizaciones()))
                 .calendario(upe.edu.demo.timeless.controller.dto.request.Calendario.builder()
+                        .id(empresa.getCalendario().getId())
                         .horaApertura(String.valueOf(empresa.getCalendario().getHInicio().toLocalTime()))
                         .horaCierre(String.valueOf(empresa.getCalendario().getHFin().toLocalTime()))
                         .diasLaborales(empresa.getCalendario().getListaDiasLaborables())
@@ -258,6 +262,7 @@ public class EmpresaService {
         List<Ausencia> ausenciasEmpresa = new ArrayList<>();
         ausencias.forEach(ausencia -> {
             ausenciasEmpresa.add(Ausencia.builder()
+                            .id( ausencia.getId())
                     .descripcion(ausencia.getDescripcion())
                     .desde(ausencia.getDesde().toString())
                     .hasta(ausencia.getHasta().toString())
@@ -270,9 +275,8 @@ public class EmpresaService {
         List<upe.edu.demo.timeless.controller.dto.request.LineaAtencion> lineasAtencionEmpresa = new ArrayList<>();
         lineasAtencion.forEach(linea -> {
             lineasAtencionEmpresa.add(upe.edu.demo.timeless.controller.dto.request.LineaAtencion.builder()
-                    .id((long) linea.getId())
+                    .id(linea.getId())
                     .descripcion(linea.getDescripccion())
-
                     .duracionTurnos(String.valueOf(linea.getDuracionTurno()))
                     .build());
         });
@@ -328,21 +332,50 @@ public class EmpresaService {
             return ResponseEntity.badRequest().body(CrearEmpresaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Esta empresa no te pertenece").code("400").build()).build());
         }
 
+       /* DatosFiscales datosFiscales = empresa.get().getDatosFiscales();
+        DomicilioFiscal domicilioFiscal = empresa.get().getDatosFiscales().getDomicilioFiscal();
+        Calendario calendario = empresa.get().getCalendario();
+        List<Ausencias> ausencias = empresa.get().getCalendario().getAusencias();
+        List<LineaAtencion> lineasAtencion = empresa.get().getLineaAtencion();
+
+        datosFiscales.setCuit(empresaRequest.getDatosFiscales().getCuit());
+        datosFiscales.setRazonSocial(empresaRequest.getDatosFiscales().getRazonSocial());
+        datosFiscales.setNombreFantasia(empresaRequest.getDatosFiscales().getNombreFantasia());
+        domicilioFiscal.setCalle(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCalle());
+        domicilioFiscal.setNumero(empresaRequest.getDatosFiscales().getDomicilioFiscal().getNumero());
+        domicilioFiscal.setLocalidad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLocalidad());
+        domicilioFiscal.setProvincia(empresaRequest.getDatosFiscales().getDomicilioFiscal().getProvincia());
+        domicilioFiscal.setPais(empresaRequest.getDatosFiscales().getDomicilioFiscal().getPais());
+        domicilioFiscal.setCiudad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCiudad());
+        domicilioFiscal.setLatitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLatitud());
+        domicilioFiscal.setLongitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLongitud());
+        calendario.setHInicio(Time.valueOf(empresaRequest.getCalendario().getHoraApertura()));
+        calendario.setHFin(Time.valueOf(empresaRequest.getCalendario().getHoraCierre()));
+        calendario.setListaDiasLaborables(empresaRequest.getCalendario().getDiasLaborales());
+        ausencias
+*/
+
+
 
         empresa.get().setDatosFiscales(DatosFiscales.builder()
+                        .id(Math.toIntExact(empresaRequest.getDatosFiscales().getId()))
                         .cuit(empresaRequest.getDatosFiscales().getCuit())
                         .razonSocial(empresaRequest.getDatosFiscales().getRazonSocial())
                         .nombreFantasia(empresaRequest.getDatosFiscales().getNombreFantasia())
                         .domicilioFiscal(DomicilioFiscal.builder()
+                                .id(Math.toIntExact(empresaRequest.getDatosFiscales().getDomicilioFiscal().getId()))
                                 .calle(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCalle())
                                 .numero(empresaRequest.getDatosFiscales().getDomicilioFiscal().getNumero())
                                 .localidad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLocalidad())
                                 .provincia(empresaRequest.getDatosFiscales().getDomicilioFiscal().getProvincia())
                                 .pais(empresaRequest.getDatosFiscales().getDomicilioFiscal().getPais())
                                 .ciudad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCiudad())
+                                .latitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLatitud())
+                                .longitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLongitud())
                                 .build())
                         .build());
         empresa.get().setCalendario(Calendario.builder()
+                        .id(empresaRequest.getCalendario().getId()!=null?empresaRequest.getCalendario().getId():null)
                 .hInicio(Time.valueOf(empresaRequest.getCalendario().getHoraApertura()))
                 .hFin(Time.valueOf(empresaRequest.getCalendario().getHoraCierre()))
                 .listaDiasLaborables(empresaRequest.getCalendario().getDiasLaborales())
@@ -350,27 +383,48 @@ public class EmpresaService {
 
 
 
-        empresaRequest.getCalendario().getAusencias().forEach(ausencia -> {
-            empresa.get().getCalendario().addAusencias(Ausencias.builder()
-                    .desde(Utils.convertStringToTimestampDate(ausencia.getDesde()))
-                    .hasta(Utils.convertStringToTimestampDate(ausencia.getHasta()))
-                    .descripcion(ausencia.getDescripcion())
-                    .build());
-        });
+        log.info("Ausencias: {}", empresaRequest.getCalendario().getAusencias());
+
+        empresaRequest.getCalendario().getAusencias().forEach(ausencia ->
+                empresa.get().getCalendario().addAusencias(
+                        Ausencias.builder()
+                .id(ausencia.getId()!=null?ausencia.getId():null)
+                .desde(Utils.convertStringToTimestampDate(ausencia.getDesde()))
+                .hasta(Utils.convertStringToTimestampDate(ausencia.getHasta()))
+                .descripcion(ausencia.getDescripcion())
+                .build()));
 
 
         empresaRequest.getLineasAtencion().forEach(linea -> {
-            LineaAtencion lineaAtencion =  LineaAtencion.builder()
-                    .descripccion(linea.getDescripcion())
-                    .habilitado(true)
-
-                    .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
-                    .build();
-
-            lineaAtencion.addAgenda(Agenda.builder().build());
 
 
-            empresa.get().addLineaAtencion(lineaAtencion);
+            if (linea.getId() != null) {
+                Agenda agenda = lineaAtencionRepository.findById(linea.getId()).get().getAgenda();
+
+                LineaAtencion lineaAtencion =  LineaAtencion.builder()
+                        .id(linea.getId()!=null?linea.getId():null)
+                        .descripccion(linea.getDescripcion())
+                        .habilitado(true)
+
+                        .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
+                        .build();
+
+                lineaAtencion.addAgenda(agenda);
+                empresa.get().addLineaAtencion(lineaAtencion);
+            }else {
+                LineaAtencion lineaAtencion =  LineaAtencion.builder()
+                        .id(linea.getId()!=null?linea.getId():null)
+                        .descripccion(linea.getDescripcion())
+                        .habilitado(true)
+
+                        .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
+                        .build();
+
+                lineaAtencion.addAgenda(Agenda.builder().build());
+                empresa.get().addLineaAtencion(lineaAtencion);
+            }
+
+
 
         });
 

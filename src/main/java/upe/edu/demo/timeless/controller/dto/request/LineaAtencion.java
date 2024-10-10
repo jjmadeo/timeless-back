@@ -11,7 +11,7 @@ import lombok.ToString;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class LineaAtencion {
-    private Long id;
+    private Integer id;
 
     private String descripcion;
     private String duracionTurnos;

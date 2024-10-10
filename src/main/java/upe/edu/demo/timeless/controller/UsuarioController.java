@@ -59,13 +59,12 @@ public class UsuarioController {
 
 
 
- /*   // Eliminar un usuario por ID
+    // Eliminar un usuario por ID
     @DeleteMapping("/bajaUsuario")
     public ResponseEntity<GenericResponse<String>> deleteUser() {
 
         return  usuarioService.deleteUser();
     }
 
-*/
 
 }

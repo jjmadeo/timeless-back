@@ -32,7 +32,7 @@ public class TurnoController {
     }
 
     @GetMapping("/turnosLineaAtencion/{id}")
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLinea(@PathVariable("id") Long id, @Param("fecha") String fecha){
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLinea(@PathVariable("id") Integer id, @Param("fecha") String fecha){
         return turnosService.getTurnosDisponiblesLineaAtencion(id,fecha);
     }
 
@@ -82,8 +82,8 @@ public class TurnoController {
     }
 
     @GetMapping("/VisualizarTurnosDisponibles/{id}")
-    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLineaAtencion(@PathVariable("id") Integer id, @Param("fecha") String fecha){
-        return turnosService.getTurnosDisponiblesLineaAtencionAndFecha(id,fecha);
+    public ResponseEntity<MultiEntityResponse<TurnosResponse>> getTurnosLineaAtencion(@PathVariable("id") Integer id, @RequestParam("desde") String fechadesde, @RequestParam("hasta") String fechahasta){
+        return turnosService.getTurnosDisponiblesLineaAtencionAndFecha(id,fechadesde,fechahasta);
     }
 
 

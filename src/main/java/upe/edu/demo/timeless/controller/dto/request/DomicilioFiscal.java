@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DomicilioFiscal {
+    private Long id;
     private String calle;
     private String numero;
     private String ciudad;
