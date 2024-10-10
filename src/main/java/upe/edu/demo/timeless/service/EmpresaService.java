@@ -36,6 +36,7 @@ public class EmpresaService {
     private final UsuarioRepository usuarioRepository;
     private final MembresiaRepository membresiaRepository;
     private final RubroRepository rubroRepository;
+    private final LineaAtencionRepository lineaAtencionRepository;
 
 
     public ResponseEntity<CrearEmpresaResponse> crearEmpresaProcess(CrearEmpresaRequest empresaRequest) {
@@ -395,16 +396,35 @@ public class EmpresaService {
 
 
         empresaRequest.getLineasAtencion().forEach(linea -> {
-            LineaAtencion lineaAtencion =  LineaAtencion.builder()
-                    .id(linea.getId()!=null?linea.getId():null)
-                    .descripccion(linea.getDescripcion())
-                    .habilitado(true)
 
-                    .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
-                    .build();
 
-            lineaAtencion.addAgenda(Agenda.builder().build());
-            empresa.get().addLineaAtencion(lineaAtencion);
+            if (linea.getId() != null) {
+                Agenda agenda = lineaAtencionRepository.findById(linea.getId()).get().getAgenda();
+
+                LineaAtencion lineaAtencion =  LineaAtencion.builder()
+                        .id(linea.getId()!=null?linea.getId():null)
+                        .descripccion(linea.getDescripcion())
+                        .habilitado(true)
+
+                        .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
+                        .build();
+
+                lineaAtencion.addAgenda(agenda);
+                empresa.get().addLineaAtencion(lineaAtencion);
+            }else {
+                LineaAtencion lineaAtencion =  LineaAtencion.builder()
+                        .id(linea.getId()!=null?linea.getId():null)
+                        .descripccion(linea.getDescripcion())
+                        .habilitado(true)
+
+                        .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
+                        .build();
+
+                lineaAtencion.addAgenda(Agenda.builder().build());
+                empresa.get().addLineaAtencion(lineaAtencion);
+            }
+
+
 
         });
 
