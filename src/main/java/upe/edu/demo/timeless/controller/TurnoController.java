@@ -48,12 +48,14 @@ public class TurnoController {
         return empresaService.updateEmpresa(id, user);
     }*/
 
+/*
     @PostMapping("/GenerarTurnos")
     public ResponseEntity<GenerarTurnosResponse> crearEmpresaProcess(@RequestBody GenerarTurnosRequest generarTurnosRequest) {
 
         return turnosService.generarTurnos(generarTurnosRequest);
 
     }
+*/
 
     @PostMapping("/preselccionarTurno/{hashid}")
     public ResponseEntity<PreseleccionarTurnoResponse> preseleccionarTurno(@PathVariable String hashid) {
@@ -66,6 +68,13 @@ public class TurnoController {
     public ResponseEntity<ConfirmacionTurnoResponse> confirmarTurno(@PathVariable String hashid) {
 
         return turnosService.confirmarTurno(hashid);
+
+    }
+
+    @PostMapping("/CancelpreselccionarTurno/{hashid}")
+    public ResponseEntity<ConfirmacionTurnoResponse> CancelarPreseleccionTurno(@PathVariable String hashid) {
+
+        return turnosService.cacelarPreseleccion(hashid);
 
     }
 

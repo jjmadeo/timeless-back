@@ -1,4 +1,4 @@
-package upe.edu.demo.timeless.controller.dto.request;
+package upe.edu.demo.timeless.controller.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -10,10 +10,8 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LineaAtencion {
-    private Integer id;
+public class AusenciaResponse {
 
-    private String descripcion;
-    private String duracionTurnos;
-    private Boolean activo;
+    private String mensaje;
+    private Error error;
 }

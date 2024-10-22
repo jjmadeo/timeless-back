@@ -10,6 +10,8 @@ import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.*;
+import upe.edu.demo.timeless.service.notification.NotificationMessage;
+import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
@@ -41,6 +43,8 @@ public class TurnosService {
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
     private final CacheWithTTL<String,Turno> cacheWithTTL;
+
+    private final NotificationService notificationService;
 
 
     public ResponseEntity<GenerarTurnosResponse> generarTurnos(GenerarTurnosRequest generarTurnosRequest) {
@@ -101,8 +105,8 @@ public class TurnosService {
 
 
         Integer duracionTurno = lineaAtencion.get().getDuracionTurno();
-        Integer rangoInicioAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toString().substring(0, 2));
-        Integer rangofinAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHFin().toString().substring(0, 2));
+        LocalTime rangoInicioAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toLocalTime();
+        LocalTime rangofinAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHFin().toLocalTime();
 
         List<Ausencias> ausencias = lineaAtencion.get().getEmpresa().getCalendario().getAusencias();
 
@@ -168,7 +172,7 @@ public class TurnosService {
     }
 
     // Generar turnos de 15 minutos desde 9 AM hasta 5 PM para un día dado
-    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
+   /* private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
         // Hora de inicio (9 AM)
         LocalTime horaInicio = LocalTime.of(rangoInicioAtencion, 0);
         // Hora de fin (5 PM)
@@ -202,7 +206,45 @@ public class TurnosService {
         }
 
         return turnos; // Retornamos los turnos generados para el día
+    }*/
+
+
+    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, LocalTime horaInicio, LocalTime horaFin) {
+        // Convertimos las horas a LocalDateTime usando el día proporcionado
+        LocalDateTime inicio = LocalDateTime.of(dia, horaInicio);
+        LocalDateTime fin = LocalDateTime.of(dia, horaFin);
+
+        log.info("Generando turnos para el día: {}", dia);
+        log.info("Hora de inicio: {}", horaInicio);
+        log.info("Hora de fin: {}", horaFin);
+
+        // Lista para almacenar los turnos generados para este día
+        List<Turno> turnos = new ArrayList<>();
+
+        // Obtenemos la duración del turno en minutos desde LineaAtencion
+        int duracionTurno = lineaAtencion.getDuracionTurno();
+
+        // Iteramos desde la hora inicio hasta la hora fin, generando turnos con la duración especificada
+        while (inicio.plusMinutes(duracionTurno).isBefore(fin) || inicio.plusMinutes(duracionTurno).equals(fin)) {
+            // Crear un nuevo turno
+            Turno turno = new Turno();
+            turno.setAgenda(lineaAtencion.getAgenda());
+            turno.setUuid(String.valueOf(UUID.randomUUID())); // Genera un UUID único para cada turno
+            turno.setFhReserva(null); // Fecha de reserva actual
+            turno.setFhInicio(Timestamp.valueOf(inicio)); // Fecha de inicio del turno
+            turno.setFhFin(Timestamp.valueOf(inicio.plusMinutes(duracionTurno))); // Fecha de fin del turno
+
+            // Agregamos el turno a la lista
+            turnos.add(turno);
+
+            // Avanzamos la duración del turno para el siguiente turno
+            inicio = inicio.plusMinutes(duracionTurno);
+        }
+
+        return turnos; // Retornamos los turnos generados para el día
     }
+
+
 
 
     public ResponseEntity<PreseleccionarTurnoResponse> preseleccionarTurno(String hashid) {
@@ -342,6 +384,7 @@ public class TurnosService {
             turnoRepository.save(turno.get());
 
 
+            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.").build(), usuario.get());
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El turno ya fue confirmado.").code("400").build()).build());
@@ -370,6 +413,8 @@ public class TurnosService {
 
       //  turnoRepository.save(turno.get());
         turnoRepository.deleteByUuid(hashid);
+
+        notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getUsuario());
 
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
@@ -462,7 +507,7 @@ public class TurnosService {
     }
 
 
-    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+    /*public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
 
 
         if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
@@ -512,7 +557,71 @@ public class TurnosService {
 
 
 
+    }*/
+
+    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+
+        if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .title("No tiene permisos para realizar esta acción")
+                                    .code("403")
+                                    .build())
+                            .build());
+        }
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("Usuario no existe.")
+                                    .code("400")
+                                    .build())
+                            .build());
+        }
+
+        List<Turno> turnos = (List<Turno>) usuario.get().getTurnos();
+        LocalDate today = LocalDate.now();
+        log.info("Fecha actual: {}", today);
+
+        // Filtrar y ordenar turnos de hoy
+        List<Turno> hoy = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today)
+                        && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO)))
+                .sorted(Comparator.comparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos futuros
+        List<Turno> futuros = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isAfter(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate())
+                        .thenComparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos pasados
+        List<Turno> pasados = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isBefore(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate()).reversed()
+                        .thenComparing(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalTime()).reversed()))
+                .toList();
+
+        log.info("Turnos hoy: {}", hoy);
+        log.info("Turnos futuros: {}", futuros);
+        log.info("Turnos pasados: {}", pasados);
+
+        return ResponseEntity.ok(TurnosResponseUser.builder()
+                .hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .build());
     }
+
+
 
     public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Integer id, String fecha) {
 
@@ -626,8 +735,8 @@ public class TurnosService {
             List<Turno> turnosDisponibles = generarTurnosParaUnDia(
                     currentDate,
                     lineaAtencion.get(),
-                    horaInicio.getHour(),
-                    horaFin.getHour());
+                    horaInicio,
+                    horaFin);
 
             // Filtrar los turnos disponibles quitando los ya otorgados
             turnosDisponibles = turnosDisponibles.stream()
@@ -721,6 +830,22 @@ public class TurnosService {
 
        return ResponseEntity.ok(TurnosLineaAtencionResponse.builder().hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList()).futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList()).pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList()).build());
 
+
+
+
+    }
+
+    public ResponseEntity<ConfirmacionTurnoResponse> cacelarPreseleccion(String hashid) {
+
+        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+
+        if (turno.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno no existe.").code("400").build()).build());
+        }
+
+        revertirEstadoTurno(turno.get());
+
+        return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().mensaje("Turno preseleccionado cancelado exitosamente.").build());
 
 
 

@@ -37,6 +37,7 @@ public class EmpresaService {
     private final MembresiaRepository membresiaRepository;
     private final RubroRepository rubroRepository;
     private final LineaAtencionRepository lineaAtencionRepository;
+    private final AusenciasRepository ausenciasRepository;
 
 
     public ResponseEntity<CrearEmpresaResponse> crearEmpresaProcess(CrearEmpresaRequest empresaRequest) {
@@ -94,6 +95,8 @@ public class EmpresaService {
                                     .provincia(empresaRequest.getDatosFiscales().getDomicilioFiscal().getProvincia())
                                     .pais(empresaRequest.getDatosFiscales().getDomicilioFiscal().getPais())
                                     .ciudad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCiudad())
+                                    .longitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLongitud())
+                                    .latitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLatitud())
                                     .build())
                             .build())
                     .calendario(Calendario.builder()
@@ -278,6 +281,7 @@ public class EmpresaService {
                     .id(linea.getId())
                     .descripcion(linea.getDescripccion())
                     .duracionTurnos(String.valueOf(linea.getDuracionTurno()))
+                            .activo(linea.isHabilitado())
                     .build());
         });
 
@@ -468,6 +472,82 @@ public class EmpresaService {
         });
 
         return ResponseEntity.ok(MultiEntityResponse.<EmpresaResponse>builder().data(empresasResponse).build());
+
+    }
+
+    public ResponseEntity<String> eliminarAusencia(Long id) {
+
+       Optional<Usuario>  usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+        if (usuario.isEmpty()) {
+            log.error("El Usuario no existe.");
+            return ResponseEntity.badRequest().body("El Usuario no existe.");
+        }
+
+        Optional<Empresa> empresa = usuario.get().getEmpresas().stream().findFirst();
+
+
+        if (empresa.isEmpty()) {
+            return ResponseEntity.badRequest().body("El Usuario no tiene una Empresa.");
+        }
+
+        List<Ausencias> ausencias = empresa.get().getCalendario().getAusencias();
+
+        if (ausencias.isEmpty()) {
+            return ResponseEntity.badRequest().body("La Empresa no tiene Ausencias.");
+        }
+
+        Optional<Ausencias> ausencia = ausencias.stream().filter(a -> a.getId() == Math.toIntExact(id)).findFirst();
+
+        if (ausencia.isEmpty()) {
+            return ResponseEntity.badRequest().body("La Ausencia no existe.");
+        }
+
+
+        ausenciasRepository.deleteByIdnative(String.valueOf(ausencia.get().getId()));
+
+
+
+
+        return ResponseEntity.ok("Ausencia eliminada correctamente.");
+
+
+
+
+
+    }
+
+    public ResponseEntity<AusenciaResponse> crearAusencia(Long id, Ausencia ausencia) {
+
+        Optional<Empresa> empresa = empresaRepository.findById(Math.toIntExact(id));
+
+        if (empresa.isEmpty()) {
+            log.error("La Empresa no existe.");
+            return ResponseEntity.badRequest().body(AusenciaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La Empresa no existe.").code("400").build()).build());
+        }
+
+        //validar que la ausencia la fecha desde no sea mayor que la fecha hasta
+
+        if(Utils.convertStringToTimestampDate(ausencia.getDesde()).after(Utils.convertStringToTimestampDate(ausencia.getHasta()))){
+            log.error("La fecha desde no puede ser mayor que la fecha hasta.");
+            return ResponseEntity.badRequest().body(AusenciaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La fecha desde no puede ser mayor que la fecha hasta.").code("400").build()).build());
+        }
+
+
+        Ausencias ausencias = Ausencias.builder()
+                .desde(Utils.convertStringToTimestampDate(ausencia.getDesde()))
+                .hasta(Utils.convertStringToTimestampDate(ausencia.getHasta()))
+                .descripcion(ausencia.getDescripcion())
+                .build();
+
+        empresa.get().getCalendario().addAusencias(ausencias);
+
+        empresaRepository.save(empresa.get());
+
+        return ResponseEntity.ok(AusenciaResponse.builder().mensaje("Ausencia creada correctamente.").build());
+
+
+
+
 
     }
 }
