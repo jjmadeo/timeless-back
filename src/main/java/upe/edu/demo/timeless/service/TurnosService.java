@@ -507,7 +507,7 @@ public class TurnosService {
     }
 
 
-    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+    /*public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
 
 
         if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
@@ -557,7 +557,71 @@ public class TurnosService {
 
 
 
+    }*/
+
+    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+
+        if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .title("No tiene permisos para realizar esta acción")
+                                    .code("403")
+                                    .build())
+                            .build());
+        }
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("Usuario no existe.")
+                                    .code("400")
+                                    .build())
+                            .build());
+        }
+
+        List<Turno> turnos = (List<Turno>) usuario.get().getTurnos();
+        LocalDate today = LocalDate.now();
+        log.info("Fecha actual: {}", today);
+
+        // Filtrar y ordenar turnos de hoy
+        List<Turno> hoy = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today)
+                        && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO)))
+                .sorted(Comparator.comparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos futuros
+        List<Turno> futuros = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isAfter(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate())
+                        .thenComparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos pasados
+        List<Turno> pasados = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isBefore(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate()).reversed()
+                        .thenComparing(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalTime()).reversed()))
+                .toList();
+
+        log.info("Turnos hoy: {}", hoy);
+        log.info("Turnos futuros: {}", futuros);
+        log.info("Turnos pasados: {}", pasados);
+
+        return ResponseEntity.ok(TurnosResponseUser.builder()
+                .hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .build());
     }
+
+
 
     public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Integer id, String fecha) {
 
