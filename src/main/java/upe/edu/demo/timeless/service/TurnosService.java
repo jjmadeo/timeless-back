@@ -732,4 +732,20 @@ public class TurnosService {
 
 
     }
+
+    public ResponseEntity<ConfirmacionTurnoResponse> cacelarPreseleccion(String hashid) {
+
+        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+
+        if (turno.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno no existe.").code("400").build()).build());
+        }
+
+        revertirEstadoTurno(turno.get());
+
+        return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().mensaje("Turno preseleccionado cancelado exitosamente.").build());
+
+
+
+    }
 }

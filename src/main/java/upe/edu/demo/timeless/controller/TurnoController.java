@@ -69,6 +69,13 @@ public class TurnoController {
 
     }
 
+    @PostMapping("/CancelpreselccionarTurno/{hashid}")
+    public ResponseEntity<ConfirmacionTurnoResponse> CancelarPreseleccionTurno(@PathVariable String hashid) {
+
+        return turnosService.cacelarPreseleccion(hashid);
+
+    }
+
     @PostMapping("/CancelarTurno/{hashid}")
     public ResponseEntity<CancelarTurnoResponse> cancelarTurno(@PathVariable String hashid) {
 
