@@ -105,8 +105,8 @@ public class TurnosService {
 
 
         Integer duracionTurno = lineaAtencion.get().getDuracionTurno();
-        Integer rangoInicioAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toString().substring(0, 2));
-        Integer rangofinAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHFin().toString().substring(0, 2));
+        LocalTime rangoInicioAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toLocalTime();
+        LocalTime rangofinAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHFin().toLocalTime();
 
         List<Ausencias> ausencias = lineaAtencion.get().getEmpresa().getCalendario().getAusencias();
 
@@ -172,7 +172,7 @@ public class TurnosService {
     }
 
     // Generar turnos de 15 minutos desde 9 AM hasta 5 PM para un día dado
-    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
+   /* private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
         // Hora de inicio (9 AM)
         LocalTime horaInicio = LocalTime.of(rangoInicioAtencion, 0);
         // Hora de fin (5 PM)
@@ -206,7 +206,45 @@ public class TurnosService {
         }
 
         return turnos; // Retornamos los turnos generados para el día
+    }*/
+
+
+    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, LocalTime horaInicio, LocalTime horaFin) {
+        // Convertimos las horas a LocalDateTime usando el día proporcionado
+        LocalDateTime inicio = LocalDateTime.of(dia, horaInicio);
+        LocalDateTime fin = LocalDateTime.of(dia, horaFin);
+
+        log.info("Generando turnos para el día: {}", dia);
+        log.info("Hora de inicio: {}", horaInicio);
+        log.info("Hora de fin: {}", horaFin);
+
+        // Lista para almacenar los turnos generados para este día
+        List<Turno> turnos = new ArrayList<>();
+
+        // Obtenemos la duración del turno en minutos desde LineaAtencion
+        int duracionTurno = lineaAtencion.getDuracionTurno();
+
+        // Iteramos desde la hora inicio hasta la hora fin, generando turnos con la duración especificada
+        while (inicio.plusMinutes(duracionTurno).isBefore(fin) || inicio.plusMinutes(duracionTurno).equals(fin)) {
+            // Crear un nuevo turno
+            Turno turno = new Turno();
+            turno.setAgenda(lineaAtencion.getAgenda());
+            turno.setUuid(String.valueOf(UUID.randomUUID())); // Genera un UUID único para cada turno
+            turno.setFhReserva(null); // Fecha de reserva actual
+            turno.setFhInicio(Timestamp.valueOf(inicio)); // Fecha de inicio del turno
+            turno.setFhFin(Timestamp.valueOf(inicio.plusMinutes(duracionTurno))); // Fecha de fin del turno
+
+            // Agregamos el turno a la lista
+            turnos.add(turno);
+
+            // Avanzamos la duración del turno para el siguiente turno
+            inicio = inicio.plusMinutes(duracionTurno);
+        }
+
+        return turnos; // Retornamos los turnos generados para el día
     }
+
+
 
 
     public ResponseEntity<PreseleccionarTurnoResponse> preseleccionarTurno(String hashid) {
@@ -633,8 +671,8 @@ public class TurnosService {
             List<Turno> turnosDisponibles = generarTurnosParaUnDia(
                     currentDate,
                     lineaAtencion.get(),
-                    horaInicio.getHour(),
-                    horaFin.getHour());
+                    horaInicio,
+                    horaFin);
 
             // Filtrar los turnos disponibles quitando los ya otorgados
             turnosDisponibles = turnosDisponibles.stream()

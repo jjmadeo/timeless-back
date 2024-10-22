@@ -48,12 +48,14 @@ public class TurnoController {
         return empresaService.updateEmpresa(id, user);
     }*/
 
+/*
     @PostMapping("/GenerarTurnos")
     public ResponseEntity<GenerarTurnosResponse> crearEmpresaProcess(@RequestBody GenerarTurnosRequest generarTurnosRequest) {
 
         return turnosService.generarTurnos(generarTurnosRequest);
 
     }
+*/
 
     @PostMapping("/preselccionarTurno/{hashid}")
     public ResponseEntity<PreseleccionarTurnoResponse> preseleccionarTurno(@PathVariable String hashid) {
