@@ -95,6 +95,8 @@ public class EmpresaService {
                                     .provincia(empresaRequest.getDatosFiscales().getDomicilioFiscal().getProvincia())
                                     .pais(empresaRequest.getDatosFiscales().getDomicilioFiscal().getPais())
                                     .ciudad(empresaRequest.getDatosFiscales().getDomicilioFiscal().getCiudad())
+                                    .longitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLongitud())
+                                    .latitud(empresaRequest.getDatosFiscales().getDomicilioFiscal().getLatitud())
                                     .build())
                             .build())
                     .calendario(Calendario.builder()
