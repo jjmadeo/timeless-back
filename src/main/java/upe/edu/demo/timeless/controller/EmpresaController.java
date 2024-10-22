@@ -60,6 +60,11 @@ public class EmpresaController {
     }
 
 
+    @DeleteMapping("/ausencia/{id}")
+    public ResponseEntity<String> EliminarAusencia(@PathVariable Long id) {
+        return empresaService.eliminarAusencia(id);
+    }
+
 
 
 

@@ -37,6 +37,7 @@ public class EmpresaService {
     private final MembresiaRepository membresiaRepository;
     private final RubroRepository rubroRepository;
     private final LineaAtencionRepository lineaAtencionRepository;
+    private final AusenciasRepository ausenciasRepository;
 
 
     public ResponseEntity<CrearEmpresaResponse> crearEmpresaProcess(CrearEmpresaRequest empresaRequest) {
@@ -468,6 +469,47 @@ public class EmpresaService {
         });
 
         return ResponseEntity.ok(MultiEntityResponse.<EmpresaResponse>builder().data(empresasResponse).build());
+
+    }
+
+    public ResponseEntity<String> eliminarAusencia(Long id) {
+
+       Optional<Usuario>  usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+        if (usuario.isEmpty()) {
+            log.error("El Usuario no existe.");
+            return ResponseEntity.badRequest().body("El Usuario no existe.");
+        }
+
+        Optional<Empresa> empresa = usuario.get().getEmpresas().stream().findFirst();
+
+
+        if (empresa.isEmpty()) {
+            return ResponseEntity.badRequest().body("El Usuario no tiene una Empresa.");
+        }
+
+        List<Ausencias> ausencias = empresa.get().getCalendario().getAusencias();
+
+        if (ausencias.isEmpty()) {
+            return ResponseEntity.badRequest().body("La Empresa no tiene Ausencias.");
+        }
+
+        Optional<Ausencias> ausencia = ausencias.stream().filter(a -> a.getId() == Math.toIntExact(id)).findFirst();
+
+        if (ausencia.isEmpty()) {
+            return ResponseEntity.badRequest().body("La Ausencia no existe.");
+        }
+
+
+        ausenciasRepository.deleteByIdnative(String.valueOf(ausencia.get().getId()));
+
+
+
+
+        return ResponseEntity.ok("Ausencia eliminada correctamente.");
+
+
+
+
 
     }
 }
