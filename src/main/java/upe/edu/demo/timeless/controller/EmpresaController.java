@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import upe.edu.demo.timeless.controller.dto.request.Ausencia;
 import upe.edu.demo.timeless.controller.dto.request.CrearEmpresaRequest;
 import upe.edu.demo.timeless.controller.dto.request.ModificarEmpresaRequest;
-import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.service.EmpresaService;
-import upe.edu.demo.timeless.service.UsuarioService;
 
 @RestController
 @AllArgsConstructor
@@ -63,6 +62,11 @@ public class EmpresaController {
     @DeleteMapping("/ausencia/{id}")
     public ResponseEntity<String> EliminarAusencia(@PathVariable Long id) {
         return empresaService.eliminarAusencia(id);
+    }
+
+    @PostMapping("/ausencia/{id}")
+    public ResponseEntity<AusenciaResponse> crearAusencia(@PathVariable Long id , @RequestBody Ausencia ausencia) {
+        return empresaService.crearAusencia(id,ausencia);
     }
 
 

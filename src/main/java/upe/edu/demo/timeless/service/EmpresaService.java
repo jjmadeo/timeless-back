@@ -512,4 +512,39 @@ public class EmpresaService {
 
 
     }
+
+    public ResponseEntity<AusenciaResponse> crearAusencia(Long id, Ausencia ausencia) {
+
+        Optional<Empresa> empresa = empresaRepository.findById(Math.toIntExact(id));
+
+        if (empresa.isEmpty()) {
+            log.error("La Empresa no existe.");
+            return ResponseEntity.badRequest().body(AusenciaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La Empresa no existe.").code("400").build()).build());
+        }
+
+        //validar que la ausencia la fecha desde no sea mayor que la fecha hasta
+
+        if(Utils.convertStringToTimestampDate(ausencia.getDesde()).after(Utils.convertStringToTimestampDate(ausencia.getHasta()))){
+            log.error("La fecha desde no puede ser mayor que la fecha hasta.");
+            return ResponseEntity.badRequest().body(AusenciaResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("La fecha desde no puede ser mayor que la fecha hasta.").code("400").build()).build());
+        }
+
+
+        Ausencias ausencias = Ausencias.builder()
+                .desde(Utils.convertStringToTimestampDate(ausencia.getDesde()))
+                .hasta(Utils.convertStringToTimestampDate(ausencia.getHasta()))
+                .descripcion(ausencia.getDescripcion())
+                .build();
+
+        empresa.get().getCalendario().addAusencias(ausencias);
+
+        empresaRepository.save(empresa.get());
+
+        return ResponseEntity.ok(AusenciaResponse.builder().mensaje("Ausencia creada correctamente.").build());
+
+
+
+
+
+    }
 }
