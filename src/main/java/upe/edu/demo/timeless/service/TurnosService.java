@@ -10,6 +10,8 @@ import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.*;
+import upe.edu.demo.timeless.service.notification.NotificationMessage;
+import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
@@ -41,6 +43,8 @@ public class TurnosService {
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
     private final CacheWithTTL<String,Turno> cacheWithTTL;
+
+    private final NotificationService notificationService;
 
 
     public ResponseEntity<GenerarTurnosResponse> generarTurnos(GenerarTurnosRequest generarTurnosRequest) {
@@ -342,6 +346,7 @@ public class TurnosService {
             turnoRepository.save(turno.get());
 
 
+            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.").build(), usuario.get());
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El turno ya fue confirmado.").code("400").build()).build());
@@ -370,6 +375,8 @@ public class TurnosService {
 
       //  turnoRepository.save(turno.get());
         turnoRepository.deleteByUuid(hashid);
+
+        notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getUsuario());
 
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
