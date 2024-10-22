@@ -15,4 +15,5 @@ public class LineaAtencion {
 
     private String descripcion;
     private String duracionTurnos;
+    private Boolean activo;
 }

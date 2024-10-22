@@ -279,6 +279,7 @@ public class EmpresaService {
                     .id(linea.getId())
                     .descripcion(linea.getDescripccion())
                     .duracionTurnos(String.valueOf(linea.getDuracionTurno()))
+                            .activo(linea.isHabilitado())
                     .build());
         });
 
