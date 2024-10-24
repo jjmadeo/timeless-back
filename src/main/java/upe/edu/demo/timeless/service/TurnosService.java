@@ -460,6 +460,7 @@ public class TurnosService {
                 .rubro(turno.getAgenda().getLineaAtencion().getEmpresa().getRubro())
                 .direccion(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
                 .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
+                .fechafin(String.valueOf(turno.getFhFin().toLocalDateTime()))
                 .cordenadas(Cordenadas.builder().latitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLatitud().toString()).longitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLongitud().toString()).build())
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())
                 .usuarioTurnoOwner(turno.getUsuario()!=null?UsuarioTurnoOwner.builder().nombre(turno.getUsuario().getDatosPersonales().getNombre()).apellido(turno.getUsuario().getDatosPersonales().getApellido()).email(turno.getUsuario().getCorreo()).telefono(turno.getUsuario().getDatosPersonales().getTelefonoCelular()).build():null)

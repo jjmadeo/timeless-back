@@ -17,6 +17,7 @@ public class TurnosResponse {
     private String hashid;
     private String mensaje;
     private String fechaHora;
+    private String fechafin;
     private String direccion;
     private Integer duracion;
     private Rubro rubro;
