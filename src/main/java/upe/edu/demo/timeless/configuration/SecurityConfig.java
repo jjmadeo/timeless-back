@@ -37,7 +37,15 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable).cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/v1/timeless/authenticate", "/v1/timeless/refresh-token","/v1/timeless/register","/swagger**","/v3/api-docs/**","/swagger-ui/**","/swagger-ui","/v1/timeless/CancelarTurno/**")
+                    .requestMatchers("/v1/timeless/authenticate",
+                            "/v1/timeless/refresh-token",
+                            "/v1/timeless/register",
+                            "/swagger**",
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui",
+                            "/v1/timeless/CancelarTurno/**",
+                            "/v1/timeless/resetPassword/**")
 
 
                     .permitAll()

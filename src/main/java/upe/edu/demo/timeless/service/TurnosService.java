@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.controller.dto.request.GenerarTurnosRequest;
 import upe.edu.demo.timeless.controller.dto.response.Error;
@@ -363,6 +364,7 @@ public class TurnosService {
         }
         Optional<Turno> turno = turnoRepository.findByUuid(hashid);
         Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+        Optional<Usuario> usuarioEmpresa = usuarioRepository.findByCorreo(turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario().getCorreo());
         if (!usuario.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no existe.").code("400").build()).build());
         }
@@ -384,7 +386,9 @@ public class TurnosService {
             turnoRepository.save(turno.get());
 
 
-            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.").build(), usuario.get());
+            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.[Usuario normal]").build(), usuario.get());
+            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.[Dueño Empresa]").build(), usuarioEmpresa.get());
+
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El turno ya fue confirmado.").code("400").build()).build());
@@ -415,6 +419,8 @@ public class TurnosService {
         turnoRepository.deleteByUuid(hashid);
 
         notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getUsuario());
+
+        notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
 
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
@@ -851,4 +857,40 @@ public class TurnosService {
 
 
     }
+
+
+    //metodo que obtenga todos los turnos, proximos apartir de la hora actual y envie una notificacion de recordatorio  6 hs antes de la cita
+
+    @Scheduled(cron = "0 0 * * * *") // Ejecutar cada hora en punto
+    public void recordatorioTurnosProximos() {
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime dentroDe59Minutos = ahora.plusMinutes(59);
+        LocalDateTime dentroDe61Minutos = ahora.plusMinutes(61);
+
+        // Filtrar los turnos que comenzarán dentro del rango de 59 a 61 minutos
+        List<Turno> turnosProximos = (List<Turno>) turnoRepository.findAll();
+
+                turnosProximos = turnosProximos.stream().filter(turno -> {
+                    LocalDateTime inicioTurno = turno.getFhInicio().toLocalDateTime();
+                    return inicioTurno.isAfter(dentroDe59Minutos) && inicioTurno.isBefore(dentroDe61Minutos);
+                })
+                .toList();
+
+        log.info("Turnos próximos para notificar: {}", turnosProximos);
+
+        // Enviar notificaciones a los usuarios de los turnos
+        turnosProximos.forEach(turno -> {
+            log.info("Enviando notificación de recordatorio para el turno: {}", turno);
+            notificationService.sendNotificationUser(
+                    NotificationMessage.builder()
+                            .message("Recordatorio de turno: " + turno.getUuid())
+                            .build(),
+                    turno.getUsuario()
+            );
+        });
+    }
+
+
+
+
 }
