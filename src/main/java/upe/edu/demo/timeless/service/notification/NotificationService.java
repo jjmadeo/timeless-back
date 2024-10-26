@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.model.Usuario;
+import upe.edu.demo.timeless.shared.utils.enums.EmailTemplate;
 
 import java.io.IOException;
 
@@ -37,9 +38,9 @@ public class NotificationService implements SendNotification {
         log.info("Enviando email para o usuario: {}", user.getCorreo());
         log.info("Mensagem: {}", message.getMessage());
         Email from = new Email("jjmadeo@gmail.com");
-        String subject = "Sending with SendGrid is Fun";
+        String subject = message.getSubject();
         Email to = new Email(user.getCorreo());
-        Content content = new Content("text/plain", "Aca va el mensaje de una notificacion. =>" + message.getMessage());
+        Content content = new Content("text/html", message.getMessage());
         Mail mail = new Mail(from, subject, to, content);
 
         SendGrid sg = new SendGrid("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");

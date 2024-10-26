@@ -19,7 +19,9 @@ import upe.edu.demo.timeless.service.UsuarioService;
 import upe.edu.demo.timeless.service.notification.NotificationMessage;
 import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.utils.Utils;
+import upe.edu.demo.timeless.shared.utils.enums.EmailTemplate;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -80,7 +82,11 @@ public class UsuarioController {
 
         usuarioRepository.save(usuario.get());
 
-        notificationService.sendNotificationUser(NotificationMessage.builder().message("Clave reseteada,Su nueva clave es: " + nuevaClave+"\n Recuerde cambiar la password una vez inicado sesion.").build(),usuario.get());
+        Map<String,String> map = Map.of("message","Clave reseteada,Su nueva clave es: " + nuevaClave+"\n Recuerde cambiar la password una vez inicado sesion.");
+
+        NotificationMessage notificationMessage = new NotificationMessage(EmailTemplate.GENERAL,"Reseteo de Password",map);
+
+        notificationService.sendNotificationUser(notificationMessage,usuario.get());
 
         return ResponseEntity.ok("Clave reseteada, se envio por email. para que pueda iniciar sesion y cambiarla.");
 
@@ -111,7 +117,12 @@ public class UsuarioController {
 
         usuarioRepository.save(usuario.get());
 
-        notificationService.sendNotificationUser(NotificationMessage.builder().message("Te avisamos que tu cambio de clave fue une exito").build(),usuario.get());
+        Map<String,String> map = Map.of("message","Te avisamos que tu cambio de clave fue une exito");
+
+        NotificationMessage notificationMessage = new NotificationMessage(EmailTemplate.GENERAL,"Cambio de Password",map);
+
+
+        notificationService.sendNotificationUser(notificationMessage,usuario.get());
 
         return ResponseEntity.ok("Clave cambiada con exito");
 

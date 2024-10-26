@@ -408,7 +408,7 @@ public class EmpresaService {
                 LineaAtencion lineaAtencion =  LineaAtencion.builder()
                         .id(linea.getId()!=null?linea.getId():null)
                         .descripccion(linea.getDescripcion())
-                        .habilitado(true)
+                        .habilitado(linea.getActivo())
 
                         .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
                         .build();
@@ -419,7 +419,7 @@ public class EmpresaService {
                 LineaAtencion lineaAtencion =  LineaAtencion.builder()
                         .id(linea.getId()!=null?linea.getId():null)
                         .descripccion(linea.getDescripcion())
-                        .habilitado(true)
+                        .habilitado(linea.getActivo())
 
                         .duracionTurno(Integer.parseInt(linea.getDuracionTurnos()))
                         .build();

@@ -16,6 +16,7 @@ import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
+import upe.edu.demo.timeless.shared.utils.enums.EmailTemplate;
 import upe.edu.demo.timeless.shared.utils.enums.EstadoTurnoEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
@@ -386,8 +387,31 @@ public class TurnosService {
             turnoRepository.save(turno.get());
 
 
-            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.[Usuario normal]").build(), usuario.get());
-            notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno confirmado exitosamente.[Dueño Empresa]").build(), usuarioEmpresa.get());
+            // Enviar notificaciones de confirmación de turno Usuario
+            Map<String, String> mapUser = new HashMap<>();
+            mapUser.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapUser.put("horaTurno", turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString());
+            mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+            mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
+            mapUser.put("direccion", direccion);
+
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,null ,mapUser);
+
+
+// Enviar notificaciones de confirmación de turno Empresa
+
+            Map<String, String> mapEmpresa = new HashMap<>();
+            mapEmpresa.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapEmpresa.put("horaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() );
+            mapEmpresa.put("lineaAtencion",turno.get().getAgenda().getLineaAtencion().getDescripccion());
+
+
+            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,null ,mapEmpresa);
+
+
+
+            notificationService.sendNotificationUser(notificationMessageUsuario, usuario.get());
+            notificationService.sendNotificationUser(notificationMessageEmpresa, usuarioEmpresa.get());
 
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
@@ -415,13 +439,28 @@ public class TurnosService {
         }
         turno.get().setEstadoTurno(estadoTurnoRepository.findById(4).get());
 
-      //  turnoRepository.save(turno.get());
+
+        DomicilioFiscal domicilioFiscal = turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal();
+        String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
+
+        //  turnoRepository.save(turno.get());
         turnoRepository.deleteByUuid(hashid);
 
-        notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getUsuario());
 
-        notificationService.sendNotificationUser(NotificationMessage.builder().message("Turno cancelado.").build(), turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
+        // Enviar notificaciones de confirmación de turno Usuario
+        Map<String, String> mapUser = new HashMap<>();
+        mapUser.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+        mapUser.put("horaTurno", turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString());
+        mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+        mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
+        mapUser.put("direccion", direccion);
 
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+
+
+
+        notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
+        notificationService.sendNotificationUser(notificationMessageUsuario, turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
@@ -880,13 +919,27 @@ public class TurnosService {
 
         // Enviar notificaciones a los usuarios de los turnos
         turnosProximos.forEach(turno -> {
-            log.info("Enviando notificación de recordatorio para el turno: {}", turno);
-            notificationService.sendNotificationUser(
-                    NotificationMessage.builder()
-                            .message("Recordatorio de turno: " + turno.getUuid())
-                            .build(),
-                    turno.getUsuario()
-            );
+
+
+            DomicilioFiscal domicilioFiscal = turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal();
+            String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
+
+            // Enviar notificaciones de confirmación de turno Usuario
+            Map<String, String> mapUser = new HashMap<>();
+            mapUser.put("fechaTurno",turno.getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapUser.put("horaTurno", turno.getFhInicio().toLocalDateTime().toLocalTime().toString());
+            mapUser.put("nombreEmpresa", turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+            mapUser.put("lineaAtencion", turno.getAgenda().getLineaAtencion().getDescripccion());
+            mapUser.put("direccion", direccion);
+
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,null ,mapUser);
+
+
+
+            notificationService.sendNotificationUser(notificationMessageUsuario,  turno.getUsuario());
+
+
+
         });
     }
 
