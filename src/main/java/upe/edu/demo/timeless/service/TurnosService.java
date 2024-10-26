@@ -932,7 +932,7 @@ public class TurnosService {
             mapUser.put("lineaAtencion", turno.getAgenda().getLineaAtencion().getDescripccion());
             mapUser.put("direccion", direccion);
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,null ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatio - "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
 
 
 
