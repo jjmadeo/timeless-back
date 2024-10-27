@@ -85,6 +85,13 @@ public class TurnoController {
 
     }
 
+    @PostMapping("/CancelarTurnoUsuario/{hashid}")
+    public ResponseEntity<CancelarTurnoResponse> cancelarTurnoUsuario(@PathVariable String hashid) {
+
+        return turnosService.cancelarTurnoUsuario(hashid);
+
+    }
+
     @GetMapping("/turnosByUser")
     public ResponseEntity<TurnosResponseUser> getturnosByUser(){
         return turnosService.getTurnosDisponiblesUser();
