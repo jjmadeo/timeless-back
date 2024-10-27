@@ -82,7 +82,7 @@ public class UsuarioController {
 
         usuarioRepository.save(usuario.get());
 
-        Map<String,String> map = Map.of("message","Clave reseteada,Su nueva clave es: " + nuevaClave+"\n Recuerde cambiar la password una vez inicado sesion.");
+        Map<String,String> map = Map.of("mensaje","Clave reseteada,Su nueva clave es: " + nuevaClave+"\n Recuerde cambiar la password una vez inicado sesion.");
 
         NotificationMessage notificationMessage = new NotificationMessage(EmailTemplate.GENERAL,"Reseteo de Password",map);
 
@@ -117,7 +117,7 @@ public class UsuarioController {
 
         usuarioRepository.save(usuario.get());
 
-        Map<String,String> map = Map.of("message","Te avisamos que tu cambio de clave fue une exito");
+        Map<String,String> map = Map.of("mensaje","Te avisamos que tu cambio de clave fue une exito");
 
         NotificationMessage notificationMessage = new NotificationMessage(EmailTemplate.GENERAL,"Cambio de Password",map);
 
