@@ -1,12 +1,11 @@
 package upe.edu.demo.timeless.service.notification;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
+
+
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
@@ -37,25 +36,27 @@ public class NotificationService implements SendNotification {
 
         log.info("Enviando email para o usuario: {}", user.getCorreo());
         log.info("Mensagem: {}", message.getMessage());
-        Email from = new Email("jjmadeo@gmail.com");
-        String subject = message.getSubject();
-        Email to = new Email(user.getCorreo());
-        Content content = new Content("text/html", message.getMessage());
-        Mail mail = new Mail(from, subject, to, content);
+        Resend resend = new Resend("re_YYUJF7AD_6mXvC698fzdsPQyY2Yb87obn");
 
-        SendGrid sg = new SendGrid("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");
-        Request request = new Request();
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("notificaciones@time-less.online")
+                .to(user.getCorreo())
+                .subject(message.getSubject())
+                .html(message.getMessage())
+                .build();
+
         try {
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            Response response = sg.api(request);
-            log.info("Email enviado com sucesso:Status{} Body: {}  Headers:{}", response.getStatusCode(), response.getBody(), response.getHeaders());
+            CreateEmailResponse data = resend.emails().send(params);
+            log.info(data.getId());
 
-
-        } catch (Exception e) {
-            log.error("Erro ao enviar email", e);
-
+        } catch (ResendException e) {
+            e.printStackTrace();
         }
-    }
+}
+
+
+
+
+
+
 }
