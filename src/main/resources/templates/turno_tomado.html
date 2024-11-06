@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            font-family: 'Radio Canada', Georgia, 'Times New Roman', Times, serif;
+            width: 700px; 
+            margin-left: auto;
+            margin-right: auto; 
+        }
+        .container .footer{
+            padding-top: 180px;
+            text-align: center;
+        }
+        .container .footer div{
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .button {
+            background-color: #63a390;
+            color: #e3e2d1;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #3b6c5b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <img src="https://iili.io/2quCyVs.png" alt="Banner">
+        </div>
+    
+        <div>
+            <p>El siguiente turno ha sido tomado:</p>
+        </div>
+    
+        <div>
+            <table>
+                <tr>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr>
+                    <td><strong>Fecha:</strong></td>
+                    <td>{{fechaTurno}}</td>
+                </tr>
+                <tr>
+                    <td><strong>Hora:</strong></td>
+                    <td>{{horaTurno}}</td>
+                </tr>
+                <tr>
+                    <td><strong>Linea de atención:</strong></td>
+                    <td>{{lineaAtencion}}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <div>
+                <div>
+                    <p>Te invitamos a ingresar a tu gestion de turnos</p>
+                    <a href="http://localhost:5173/homeGeneral" class="button">Ver ahora</a>
+                </div>
+                <div>
+                    <p>Este mensaje es automático y no requiere respuesta adicional</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

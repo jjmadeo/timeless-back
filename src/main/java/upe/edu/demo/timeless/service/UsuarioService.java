@@ -1,21 +1,23 @@
 package upe.edu.demo.timeless.service;
 
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import upe.edu.demo.timeless.controller.dto.request.Ausencia;
+import upe.edu.demo.timeless.controller.dto.request.ChangePassword;
 import upe.edu.demo.timeless.controller.dto.request.RegisterRequest;
 import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.model.*;
-import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
-import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
-import upe.edu.demo.timeless.repository.TurnoRepository;
-import upe.edu.demo.timeless.repository.UsuarioRepository;
+import upe.edu.demo.timeless.repository.*;
+import upe.edu.demo.timeless.service.notification.NotificationMessage;
+import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.TipoDniEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
@@ -34,6 +36,18 @@ public class UsuarioService {
     private final TipoUsuarioRepository tipoUsuarioRepository;
     private final TipoDocumentoRepository tipoDocumentoRepository;
     private final TurnoRepository turnoRepository;
+    private final AgendaRepository agendaRepository;
+    private final LineaAtencionRepository lineaAtencionRepository;
+    private final AusenciasRepository ausenciasRepository;
+    private final CalendarioRepository calendarioRepository;
+    private final ParametrizacionEmpresaRepository parametrizacionEmpresaRepository;
+    private final DatosFiscalesRepository datosFiscalesRepository;
+    private final DomicilioFiscalRepository domicilioFiscalRepository;
+    private final EmpresaRepository empresaRepository;
+    private final ConfigUsuarioGeneralRepository configUsuarioGeneralRepository;
+    private final DatosPersonalesRepository datosPersonalesRepository;
+    private final DomicilioRepository domicilioRepository;
+
 
     public Usuario findByUsername(String correo) {
         return usuarioRepository.findByCorreo(correo).orElseThrow();
@@ -90,15 +104,11 @@ public class UsuarioService {
             return ResponseEntity.ok(RegisterResponse.builder().message("Usuario creado con exito").id(userCreated.getId()).build());
 
 
-
-
-
         } catch (Exception e) {
             log.error("Error al crear usuario", e);
             return ResponseEntity.badRequest().body(RegisterResponse.builder().message("Error al crear usuario").build());
         }
     }
-
 
 
     public ResponseEntity<MultiEntityResponse<UsuarioResponse>> getAllUsuarios() {
@@ -111,15 +121,7 @@ public class UsuarioService {
         );
 
 
-
-
-
-
-
-
     }
-
-
 
 
     public UsuarioResponse mapToUserResponse(Usuario usuario) {
@@ -157,7 +159,6 @@ public class UsuarioService {
                 .build();
 
 
-
     }
 
 
@@ -177,8 +178,6 @@ public class UsuarioService {
         log.info("{}", user);
 
 
-
-
         Usuario usuario = usuarioRepository.findById(Math.toIntExact(id)).orElseThrow();
 
         if (!usuario.getCorreo().equals(Utils.getUserEmail())) {
@@ -189,8 +188,8 @@ public class UsuarioService {
         }
 
 
-        TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(user.getTipoUsuario()).orElseThrow(()-> new RuntimeException("Tipo de usuario no encontrado"));
-        TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(user.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow(()-> new RuntimeException("Tipo de Documento no encontrado"));
+        TipoUsuario tipoUsuario = tipoUsuarioRepository.findByDetalle(user.getTipoUsuario()).orElseThrow(() -> new RuntimeException("Tipo de usuario no encontrado"));
+        TipoDocumento tipoDocumento = tipoDocumentoRepository.findByDetalle(user.getDatosPersonales().getTipoDocumento().toUpperCase()).orElseThrow(() -> new RuntimeException("Tipo de Documento no encontrado"));
 
         usuario.setTipoUsuario(tipoUsuario);
 
@@ -213,12 +212,7 @@ public class UsuarioService {
         usuario.getConfigUsuarioGeneral().setWpp(user.getConfigUsuarioGeneral().isWpp());
 
 
-
         usuarioRepository.save(usuario);
-
-
-
-
 
 
         return null;
@@ -235,12 +229,12 @@ public class UsuarioService {
 
         Optional<Turno> turno = turnoRepository.findByUuid(hashid);
 
-        if(turno.isEmpty()){
+        if (turno.isEmpty()) {
             return ResponseEntity.badRequest().body(UsuarioResponse.builder().error(Error.builder()
-                            .status(HttpStatus.BAD_REQUEST)
-                            .title("Turno no encontrado")
-                            .code("400")
-                            .build()).build());
+                    .status(HttpStatus.BAD_REQUEST)
+                    .title("Turno no encontrado")
+                    .code("400")
+                    .build()).build());
         }
 
 
@@ -248,51 +242,53 @@ public class UsuarioService {
 
         if (usuario.isEmpty()) {
             return ResponseEntity.badRequest().body(UsuarioResponse.builder().error(Error.builder()
-                            .status(HttpStatus.BAD_REQUEST)
-                            .title("Usuario Este turno no tiene asociado un usuario")
-                            .code("400")
-                            .build()).build());
+                    .status(HttpStatus.BAD_REQUEST)
+                    .title("Usuario Este turno no tiene asociado un usuario")
+                    .code("400")
+                    .build()).build());
         }
-
-
 
 
         return ResponseEntity.ok(mapToUserResponse(turno.get().getUsuario()));
 
 
-
-
     }
 
 
-    /*public ResponseEntity<GenericResponse<String>> deleteUser() {
+    @Transactional
+    public ResponseEntity<GenericResponse<String>> deleteUser() {
 
         String email = Utils.getUserEmail();
 
-       String tipoUser = Utils.getFirstAuthority();
+        String tipoUser = Utils.getFirstAuthority();
 
 
         Optional<Usuario> usuario = usuarioRepository.findByCorreo(email);
-
-
 
 
         if (usuario.isEmpty()) {
             return ResponseEntity.badRequest().body(GenericResponse.<String>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no encontrado").code("400").build()).build());
         }
 
-        log.info("Usuario eliminado.{}", usuario.get());
+        if (tipoUser.equals(TipoUsuarioEnum.EMPRESA.name())) {
+            return ResponseEntity.badRequest().body(GenericResponse.<String>builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Una empresa no puede darse de baja").code("400").build()).build());
+        }
 
-        usuarioRepository.delete(usuario.get());
 
+        usuario.get().setHabilitado(false);
+
+        usuario.get().getTurnos().forEach(turno -> {
+            turnoRepository.deleteByUuid(turno.getUuid());
+        });
+
+
+        usuarioRepository.save(usuario.get());
 
 
         return ResponseEntity.ok(GenericResponse.<String>builder().data("Usuario eliminado con exito").build());
 
 
+    }
 
 
-
-
-    }*/
 }

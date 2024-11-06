@@ -4,15 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import upe.edu.demo.timeless.controller.dto.request.GenerarTurnosRequest;
 import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
 import upe.edu.demo.timeless.repository.*;
+import upe.edu.demo.timeless.service.notification.NotificationMessage;
+import upe.edu.demo.timeless.service.notification.NotificationService;
 import upe.edu.demo.timeless.shared.CacheWithTTL;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.DiaSemana;
+import upe.edu.demo.timeless.shared.utils.enums.EmailTemplate;
 import upe.edu.demo.timeless.shared.utils.enums.EstadoTurnoEnum;
 import upe.edu.demo.timeless.shared.utils.enums.TipoUsuarioEnum;
 
@@ -41,6 +45,8 @@ public class TurnosService {
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
     private final CacheWithTTL<String,Turno> cacheWithTTL;
+
+    private final NotificationService notificationService;
 
 
     public ResponseEntity<GenerarTurnosResponse> generarTurnos(GenerarTurnosRequest generarTurnosRequest) {
@@ -101,8 +107,8 @@ public class TurnosService {
 
 
         Integer duracionTurno = lineaAtencion.get().getDuracionTurno();
-        Integer rangoInicioAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toString().substring(0, 2));
-        Integer rangofinAtencion = Integer.valueOf(lineaAtencion.get().getEmpresa().getCalendario().getHFin().toString().substring(0, 2));
+        LocalTime rangoInicioAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHInicio().toLocalTime();
+        LocalTime rangofinAtencion = lineaAtencion.get().getEmpresa().getCalendario().getHFin().toLocalTime();
 
         List<Ausencias> ausencias = lineaAtencion.get().getEmpresa().getCalendario().getAusencias();
 
@@ -168,7 +174,7 @@ public class TurnosService {
     }
 
     // Generar turnos de 15 minutos desde 9 AM hasta 5 PM para un día dado
-    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
+   /* private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, Integer rangoInicioAtencion, Integer rangofinAtencion) {
         // Hora de inicio (9 AM)
         LocalTime horaInicio = LocalTime.of(rangoInicioAtencion, 0);
         // Hora de fin (5 PM)
@@ -202,7 +208,45 @@ public class TurnosService {
         }
 
         return turnos; // Retornamos los turnos generados para el día
+    }*/
+
+
+    private List<Turno> generarTurnosParaUnDia(LocalDate dia, LineaAtencion lineaAtencion, LocalTime horaInicio, LocalTime horaFin) {
+        // Convertimos las horas a LocalDateTime usando el día proporcionado
+        LocalDateTime inicio = LocalDateTime.of(dia, horaInicio);
+        LocalDateTime fin = LocalDateTime.of(dia, horaFin);
+
+        log.info("Generando turnos para el día: {}", dia);
+        log.info("Hora de inicio: {}", horaInicio);
+        log.info("Hora de fin: {}", horaFin);
+
+        // Lista para almacenar los turnos generados para este día
+        List<Turno> turnos = new ArrayList<>();
+
+        // Obtenemos la duración del turno en minutos desde LineaAtencion
+        int duracionTurno = lineaAtencion.getDuracionTurno();
+
+        // Iteramos desde la hora inicio hasta la hora fin, generando turnos con la duración especificada
+        while (inicio.plusMinutes(duracionTurno).isBefore(fin) || inicio.plusMinutes(duracionTurno).equals(fin)) {
+            // Crear un nuevo turno
+            Turno turno = new Turno();
+            turno.setAgenda(lineaAtencion.getAgenda());
+            turno.setUuid(String.valueOf(UUID.randomUUID())); // Genera un UUID único para cada turno
+            turno.setFhReserva(null); // Fecha de reserva actual
+            turno.setFhInicio(Timestamp.valueOf(inicio)); // Fecha de inicio del turno
+            turno.setFhFin(Timestamp.valueOf(inicio.plusMinutes(duracionTurno))); // Fecha de fin del turno
+
+            // Agregamos el turno a la lista
+            turnos.add(turno);
+
+            // Avanzamos la duración del turno para el siguiente turno
+            inicio = inicio.plusMinutes(duracionTurno);
+        }
+
+        return turnos; // Retornamos los turnos generados para el día
     }
+
+
 
 
     public ResponseEntity<PreseleccionarTurnoResponse> preseleccionarTurno(String hashid) {
@@ -321,6 +365,7 @@ public class TurnosService {
         }
         Optional<Turno> turno = turnoRepository.findByUuid(hashid);
         Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+        Optional<Usuario> usuarioEmpresa = usuarioRepository.findByCorreo(turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario().getCorreo());
         if (!usuario.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no existe.").code("400").build()).build());
         }
@@ -341,6 +386,34 @@ public class TurnosService {
             turno.get().setLokedTime(null);
             turnoRepository.save(turno.get());
 
+
+            // Enviar notificaciones de confirmación de turno Usuario
+            Map<String, String> mapUser = new HashMap<>();
+            mapUser.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapUser.put("horaTurno", turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString());
+            mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+            mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
+            mapUser.put("direccion", direccion);
+            mapUser.put("urlCancelar", "http://localhost:5173/cancelarTurno?hash=" + turno.get().getUuid());
+
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,null ,mapUser);
+
+
+// Enviar notificaciones de confirmación de turno Empresa
+
+            Map<String, String> mapEmpresa = new HashMap<>();
+            mapEmpresa.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapEmpresa.put("horaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() );
+            mapEmpresa.put("lineaAtencion",turno.get().getAgenda().getLineaAtencion().getDescripccion());
+
+
+
+            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,null ,mapEmpresa);
+
+
+
+            notificationService.sendNotificationUser(notificationMessageUsuario, usuario.get());
+            notificationService.sendNotificationUser(notificationMessageEmpresa, usuarioEmpresa.get());
 
             return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().hashid(turno.get().getUuid()).mensaje("Turno confirmado exitosamente.").fechaHora(turno.get().getFhInicio().toLocalDateTime()).direccion(direccion).build());
         } else {
@@ -368,9 +441,28 @@ public class TurnosService {
         }
         turno.get().setEstadoTurno(estadoTurnoRepository.findById(4).get());
 
-      //  turnoRepository.save(turno.get());
+
+        DomicilioFiscal domicilioFiscal = turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal();
+        String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
+
+        //  turnoRepository.save(turno.get());
         turnoRepository.deleteByUuid(hashid);
 
+
+        // Enviar notificaciones de confirmación de turno Usuario
+        Map<String, String> mapUser = new HashMap<>();
+        mapUser.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+        mapUser.put("horaTurno", turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString());
+        mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+        mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
+        mapUser.put("direccion", direccion);
+
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+
+
+
+        notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
+        notificationService.sendNotificationUser(notificationMessageUsuario, turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
@@ -415,6 +507,7 @@ public class TurnosService {
                 .rubro(turno.getAgenda().getLineaAtencion().getEmpresa().getRubro())
                 .direccion(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCalle() + " " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getNumero() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getCiudad() + ", " + turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLocalidad())
                 .fechaHora(String.valueOf(turno.getFhInicio().toLocalDateTime()))
+                .fechafin(String.valueOf(turno.getFhFin().toLocalDateTime()))
                 .cordenadas(Cordenadas.builder().latitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLatitud().toString()).longitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLongitud().toString()).build())
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())
                 .usuarioTurnoOwner(turno.getUsuario()!=null?UsuarioTurnoOwner.builder().nombre(turno.getUsuario().getDatosPersonales().getNombre()).apellido(turno.getUsuario().getDatosPersonales().getApellido()).email(turno.getUsuario().getCorreo()).telefono(turno.getUsuario().getDatosPersonales().getTelefonoCelular()).build():null)
@@ -462,7 +555,7 @@ public class TurnosService {
     }
 
 
-    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+    /*public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
 
 
         if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
@@ -512,7 +605,71 @@ public class TurnosService {
 
 
 
+    }*/
+
+    public ResponseEntity<TurnosResponseUser> getTurnosDisponiblesUser() {
+
+        if (!Objects.requireNonNull(Utils.getFirstAuthority()).contains(TipoUsuarioEnum.GENERAL.name())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .title("No tiene permisos para realizar esta acción")
+                                    .code("403")
+                                    .build())
+                            .build());
+        }
+
+        Optional<Usuario> usuario = usuarioRepository.findByCorreo(Utils.getUserEmail());
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(TurnosResponseUser.builder()
+                            .error(Error.builder()
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .title("Usuario no existe.")
+                                    .code("400")
+                                    .build())
+                            .build());
+        }
+
+        List<Turno> turnos = (List<Turno>) usuario.get().getTurnos();
+        LocalDate today = LocalDate.now();
+        log.info("Fecha actual: {}", today);
+
+        // Filtrar y ordenar turnos de hoy
+        List<Turno> hoy = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isEqual(today)
+                        && turno.getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO)))
+                .sorted(Comparator.comparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos futuros
+        List<Turno> futuros = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isAfter(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate())
+                        .thenComparing(turno -> turno.getFhInicio().toLocalDateTime().toLocalTime()))
+                .toList();
+
+        // Filtrar y ordenar turnos pasados
+        List<Turno> pasados = turnos.stream()
+                .filter(turno -> turno.getFhInicio().toLocalDateTime().toLocalDate().isBefore(today))
+                .sorted(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalDate()).reversed()
+                        .thenComparing(Comparator.comparing((Turno turno) -> turno.getFhInicio().toLocalDateTime().toLocalTime()).reversed()))
+                .toList();
+
+        log.info("Turnos hoy: {}", hoy);
+        log.info("Turnos futuros: {}", futuros);
+        log.info("Turnos pasados: {}", pasados);
+
+        return ResponseEntity.ok(TurnosResponseUser.builder()
+                .hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList())
+                .build());
     }
+
+
 
     public ResponseEntity<MultiEntityResponse<TurnosResponse>>  getTurnosDisponiblesLineaAtencion(Integer id, String fecha) {
 
@@ -626,8 +783,8 @@ public class TurnosService {
             List<Turno> turnosDisponibles = generarTurnosParaUnDia(
                     currentDate,
                     lineaAtencion.get(),
-                    horaInicio.getHour(),
-                    horaFin.getHour());
+                    horaInicio,
+                    horaFin);
 
             // Filtrar los turnos disponibles quitando los ya otorgados
             turnosDisponibles = turnosDisponibles.stream()
@@ -720,6 +877,123 @@ public class TurnosService {
 
 
        return ResponseEntity.ok(TurnosLineaAtencionResponse.builder().hoy(hoy.stream().map(this::mapTurnoToTurnosResponse).toList()).futuros(futuros.stream().map(this::mapTurnoToTurnosResponse).toList()).pasados(pasados.stream().map(this::mapTurnoToTurnosResponse).toList()).build());
+
+
+
+
+    }
+
+    public ResponseEntity<ConfirmacionTurnoResponse> cacelarPreseleccion(String hashid) {
+
+        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+
+        if (turno.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ConfirmacionTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno no existe.").code("400").build()).build());
+        }
+
+        revertirEstadoTurno(turno.get());
+
+        return ResponseEntity.ok(ConfirmacionTurnoResponse.builder().mensaje("Turno preseleccionado cancelado exitosamente.").build());
+
+
+
+    }
+
+
+    //metodo que obtenga todos los turnos, proximos apartir de la hora actual y envie una notificacion de recordatorio  6 hs antes de la cita
+
+    @Scheduled(cron = "0 0 * * * *") // Ejecutar cada hora en punto
+    public void recordatorioTurnosProximos() {
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime dentroDe59Minutos = ahora.plusMinutes(59);
+        LocalDateTime dentroDe61Minutos = ahora.plusMinutes(61);
+
+        // Filtrar los turnos que comenzarán dentro del rango de 59 a 61 minutos
+        List<Turno> turnosProximos = (List<Turno>) turnoRepository.findAll();
+
+                turnosProximos = turnosProximos.stream().filter(turno -> {
+                    LocalDateTime inicioTurno = turno.getFhInicio().toLocalDateTime();
+                    return inicioTurno.isAfter(dentroDe59Minutos) && inicioTurno.isBefore(dentroDe61Minutos);
+                })
+                .toList();
+
+        log.info("Turnos próximos para notificar: {}", turnosProximos);
+
+        // Enviar notificaciones a los usuarios de los turnos
+        turnosProximos.forEach(turno -> {
+
+
+            DomicilioFiscal domicilioFiscal = turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal();
+            String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
+
+            // Enviar notificaciones de confirmación de turno Usuario
+            Map<String, String> mapUser = new HashMap<>();
+            mapUser.put("fechaTurno",turno.getFhInicio().toLocalDateTime().toLocalDate().toString());
+            mapUser.put("horaTurno", turno.getFhInicio().toLocalDateTime().toLocalTime().toString());
+            mapUser.put("nombreEmpresa", turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+            mapUser.put("lineaAtencion", turno.getAgenda().getLineaAtencion().getDescripccion());
+            mapUser.put("direccion", direccion);
+            mapUser.put("urlCancelar", "http://localhost:5173/cancelarTurno?hash=" + turno.getUuid());
+
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatio - "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
+
+
+
+            notificationService.sendNotificationUser(notificationMessageUsuario,  turno.getUsuario());
+
+
+
+        });
+    }
+
+
+    public ResponseEntity<CancelarTurnoResponse> cancelarTurnoUsuario(String hashid) {
+
+        Optional<Turno> turno = turnoRepository.findByUuid(hashid);
+
+        Usuario usuario = usuarioRepository.findByCorreo(Utils.getUserEmail()).get();
+
+        if(usuario.getEmpresas().isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CancelarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Usuario no tiene empresas asociadas.").code("400").build()).build());
+
+
+
+        if (turno.isEmpty()) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CancelarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("Turno no existe.").code("400").build()).build());
+
+        }
+
+        if(!turno.get().getEstadoTurno().getDetalle().equalsIgnoreCase(String.valueOf(EstadoTurnoEnum.OTORGADO))){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CancelarTurnoResponse.builder().error(Error.builder().status(HttpStatus.BAD_REQUEST).title("El turno no puede ser cancelado.").code("400").build()).build());
+        }
+        turno.get().setEstadoTurno(estadoTurnoRepository.findById(4).get());
+
+
+        DomicilioFiscal domicilioFiscal = turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal();
+        String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
+
+        //  turnoRepository.save(turno.get());
+        turnoRepository.deleteByUuid(hashid);
+
+
+        // Enviar notificaciones de confirmación de turno Usuario
+        Map<String, String> mapUser = new HashMap<>();
+        mapUser.put("fechaTurno",turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString());
+        mapUser.put("horaTurno", turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString());
+        mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
+        mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
+        mapUser.put("direccion", direccion);
+
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+
+
+
+        notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
+
+
+        return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
+
 
 
 
