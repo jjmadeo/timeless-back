@@ -45,6 +45,7 @@ public class TurnosService {
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
     private final CacheWithTTL<String,Turno> cacheWithTTL;
+    private final AuditoriaRepository auditoriaRepository;
 
     private final NotificationService notificationService;
 
@@ -463,6 +464,8 @@ public class TurnosService {
 
         notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
         notificationService.sendNotificationUser(notificationMessageUsuario, turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
+
+        Utils.isertAuditoria(turno.get(), "EMPRESA",auditoriaRepository );
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
@@ -991,7 +994,7 @@ public class TurnosService {
 
         notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
 
-
+        Utils.isertAuditoria(turno.get(), "USUARIO",auditoriaRepository );
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
 

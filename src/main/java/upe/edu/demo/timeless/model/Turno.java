@@ -47,7 +47,7 @@ public class Turno {
     @JoinColumn(name = "fk_estado_turno", referencedColumnName = "id", nullable = false)
     private EstadoTurno estadoTurno;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_medio_págos", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "fk_medio_pagos", referencedColumnName = "id", nullable = false)
     private MediosPagos mediosPago;
 
     @ToString.Exclude
