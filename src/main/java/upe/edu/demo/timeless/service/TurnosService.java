@@ -397,7 +397,7 @@ public class TurnosService {
             mapUser.put("direccion", direccion);
             mapUser.put("urlCancelar", "https://time-less.online/cancelarTurno?hash=" + turno.get().getUuid());
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,null ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,"Recordatio - "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
 
 
 // Enviar notificaciones de confirmación de turno Empresa
@@ -409,7 +409,7 @@ public class TurnosService {
 
 
 
-            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,null ,mapEmpresa);
+            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,"Recordatio - "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapEmpresa);
 
 
 
