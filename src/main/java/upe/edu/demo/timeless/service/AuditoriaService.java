@@ -36,6 +36,8 @@ public class AuditoriaService {
 
     public ResponseEntity<GenericResponse<List<AuditoriaResponse>>> auditoria(String canceledBy, Long id) {
 
+        log.info("AuditoriaService.auditoria");
+
         //usuario autenticado
 
         String userEmail = Utils.getUserEmail();
@@ -56,8 +58,12 @@ public class AuditoriaService {
       }
 
 
+
+
         List<Auditoria> auditorias = auditoriaRepository.findAllByUsuario(usuario.get().getId());
 
+        log.info("Auditorias: "+auditorias.size());
+        log.info("Auditorias: "+auditorias);
         if(canceledBy != null && !canceledBy.isEmpty()){
             auditorias = auditorias.stream().filter(auditoria -> auditoria.getCanceledBy().equals(canceledBy)).toList();
         }
@@ -125,7 +131,8 @@ public class AuditoriaService {
 
 
         List<Auditoria> auditorias = auditoriaRepository.findAllByUsuarioEmpresa(usuario.get().getId());
-
+        log.info("Auditorias: "+auditorias.size());
+        log.info("Auditorias: "+auditorias);
         if(canceledBy != null && !canceledBy.isEmpty()){
             auditorias = auditorias.stream().filter(auditoria -> auditoria.getCanceledBy().equals(canceledBy)).toList();
         }
