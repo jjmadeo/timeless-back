@@ -397,7 +397,7 @@ public class TurnosService {
             mapUser.put("direccion", direccion);
             mapUser.put("urlCancelar", "https://time-less.online/cancelarTurno?hash=" + turno.get().getUuid());
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,"Recordatio - "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,"Recordatorio: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapUser);
 
 
 // Enviar notificaciones de confirmación de turno Empresa
@@ -409,7 +409,7 @@ public class TurnosService {
 
 
 
-            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,"Recordatio - "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapEmpresa);
+            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,"Recordatorio: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapEmpresa);
 
 
 
@@ -458,7 +458,7 @@ public class TurnosService {
         mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
         mapUser.put("direccion", direccion);
 
-        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,"Turno Cancelado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString()  ,mapUser);
 
 
 
@@ -938,7 +938,7 @@ public class TurnosService {
             mapUser.put("direccion", direccion);
             mapUser.put("urlCancelar", "https://time-less.online/cancelarTurno?hash=" + turno.getUuid());
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatio - "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatorio:"+turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapUser);
 
 
 
@@ -988,7 +988,7 @@ public class TurnosService {
         mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
         mapUser.put("direccion", direccion);
 
-        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,"Turno Cancelado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString()  ,mapUser);
 
 
 
