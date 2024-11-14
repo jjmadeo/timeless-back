@@ -16,6 +16,8 @@ public class AuditoriaResponse {
 
     private Integer idAuditoria;
     private String usuario;
+    private String usuarioEmpresa;
+    private String dni;
     private String correo;
     private String telefonoUsuario;
 

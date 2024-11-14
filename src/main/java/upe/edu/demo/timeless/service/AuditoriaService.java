@@ -140,10 +140,10 @@ public class AuditoriaService {
 
         List<AuditoriaResponse> auditoriaResponses = auditorias.stream().map(auditoria -> {
 
-            Optional<Usuario> usuarioEmpresa = usuarioRepository.findById(auditoria.getUsuarioEmpresa());
+            Optional<Usuario> usuarioTurno = usuarioRepository.findById(auditoria.getUsuario());
 
 
-            DomicilioFiscal domicilioFiscal = usuarioEmpresa.get().getEmpresas().get(0).getDatosFiscales().getDomicilioFiscal();
+            DomicilioFiscal domicilioFiscal = usuario.get().getEmpresas().get(0).getDatosFiscales().getDomicilioFiscal();
             String direccion = domicilioFiscal.getCalle() + " " + domicilioFiscal.getNumero() + ",  " + domicilioFiscal.getCiudad() + ", " + domicilioFiscal.getLocalidad();
 
 
@@ -152,13 +152,15 @@ public class AuditoriaService {
                     .idAuditoria(auditoria.getId())
                     .canceledBy(auditoria.getCanceledBy())
                     .direccion(direccion)
-                    .empresa(usuarioEmpresa.get().getEmpresas().get(0).getDatosFiscales().getNombreFantasia())
+                    .empresa(usuario.get().getEmpresas().get(0).getDatosFiscales().getNombreFantasia())
+                    .usuarioEmpresa(usuario.get().getDatosPersonales().getNombre()+" "+usuario.get().getDatosPersonales().getApellido())
                     .fhEvent(auditoria.getFhEvent())
+                    .dni(usuarioTurno.get().getDatosPersonales().getNumeroDocumento())
                     .turno(auditoria.getFhTurno())
-                    .usuario(usuario.get().getDatosPersonales().getNombre()+" "+usuario.get().getDatosPersonales().getApellido())
-                    .telefonoEmpresa(usuarioEmpresa.get().getDatosPersonales().getTelefonoCelular())
-                    .telefonoUsuario(usuario.get().getDatosPersonales().getTelefonoCelular())
-                    .correo(usuario.get().getCorreo())
+                    .usuario(usuarioTurno.get().getDatosPersonales().getNombre()+" "+usuarioTurno.get().getDatosPersonales().getApellido())
+                    .telefonoEmpresa(usuario.get().getDatosPersonales().getTelefonoCelular())
+                    .telefonoUsuario(usuarioTurno.get().getDatosPersonales().getTelefonoCelular())
+                    .correo(usuarioTurno.get().getCorreo())
                     .build();
         }).toList();
 
