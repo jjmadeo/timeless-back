@@ -49,8 +49,9 @@ public class NotificationService implements SendNotification {
             CreateEmailResponse data = resend.emails().send(params);
             log.info(data.getId());
 
-        } catch (ResendException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+           log.error("Erro ao enviar email, por favor verifique el servicio", e);
+           e.printStackTrace();
         }
 }
 
