@@ -19,11 +19,11 @@ services:
       MARIADB_USER: timelessuser
       MARIADB_PASSWORD: timelesspass
       MARIADB_ROOT_PASSWORD: root_password
-      MARIADB_DATABASE: timelessdb
+      MARIADB_DATABASE: timeless
     ports:
       - "3306:3306"
     volumes:
-      - C:/volumenes/init.sql:/docker-entrypoint-initdb.d/1.sql   # Montar el directorio con los archivos SQL
+      - ./init.sql:/docker-entrypoint-initdb.d/1.sql   # Montar el directorio con los archivos SQL
       - C:/volumenes/mariadb_data:/var/lib/mysql
 
 volumes:
