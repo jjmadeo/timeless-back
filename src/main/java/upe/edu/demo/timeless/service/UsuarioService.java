@@ -47,6 +47,7 @@ public class UsuarioService {
     private final ConfigUsuarioGeneralRepository configUsuarioGeneralRepository;
     private final DatosPersonalesRepository datosPersonalesRepository;
     private final DomicilioRepository domicilioRepository;
+    private final ConfigSistemaRepository configSistemaRepository;
 
 
     public Usuario findByUsername(String correo) {
@@ -55,6 +56,12 @@ public class UsuarioService {
 
     public ResponseEntity<RegisterResponse> registrarUsuario(RegisterRequest registerRequest) {
         log.info("Creando usuario");
+
+        ConfigSistema configSistema = configSistemaRepository.findByClave("altaEmpresa").orElseThrow();
+
+        if (registerRequest.getTipoUsuario().equalsIgnoreCase(TipoUsuarioEnum.EMPRESA.name()) && configSistema.getValor().equalsIgnoreCase("true")) {
+            return ResponseEntity.badRequest().body(RegisterResponse.builder().message("Temporalmente no esta habilitada la creacion de empresas.").build());
+        }
 
         Usuario userCreated = null;
         if (usuarioRepository.existsByCorreo(registerRequest.getCorreo())) {

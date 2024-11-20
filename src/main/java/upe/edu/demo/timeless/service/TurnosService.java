@@ -45,6 +45,7 @@ public class TurnosService {
     private final LineaAtencionRepository lineaAtencionRepository;
     private final MediosPagosRepository mediosPagosRepository;
     private final CacheWithTTL<String,Turno> cacheWithTTL;
+    private final AuditoriaRepository auditoriaRepository;
 
     private final NotificationService notificationService;
 
@@ -394,9 +395,9 @@ public class TurnosService {
             mapUser.put("nombreEmpresa", turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
             mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
             mapUser.put("direccion", direccion);
-            mapUser.put("urlCancelar", "http://localhost:5173/cancelarTurno?hash=" + turno.get().getUuid());
+            mapUser.put("urlCancelar", "https://time-less.online/cancelarTurno?hash=" + turno.get().getUuid());
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,null ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CONFIRMADO,"Turno Confirmado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapUser);
 
 
 // Enviar notificaciones de confirmación de turno Empresa
@@ -408,7 +409,7 @@ public class TurnosService {
 
 
 
-            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,null ,mapEmpresa);
+            NotificationMessage notificationMessageEmpresa = new NotificationMessage(EmailTemplate.TURNO_TOMADO,"Turno Confirmado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapEmpresa);
 
 
 
@@ -457,12 +458,14 @@ public class TurnosService {
         mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
         mapUser.put("direccion", direccion);
 
-        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,"Turno Cancelado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString()  ,mapUser);
 
 
 
         notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
         notificationService.sendNotificationUser(notificationMessageUsuario, turno.get().getAgenda().getLineaAtencion().getEmpresa().getUsuario());
+
+        Utils.isertAuditoria(turno.get(), "EMPRESA",auditoriaRepository );
 
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
@@ -510,6 +513,7 @@ public class TurnosService {
                 .fechafin(String.valueOf(turno.getFhFin().toLocalDateTime()))
                 .cordenadas(Cordenadas.builder().latitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLatitud().toString()).longitud(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getDomicilioFiscal().getLongitud().toString()).build())
                 .nombreEmpresa(turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia())
+                .lineaAtencionName(turno.getAgenda().getLineaAtencion().getDescripccion())
                 .usuarioTurnoOwner(turno.getUsuario()!=null?UsuarioTurnoOwner.builder().nombre(turno.getUsuario().getDatosPersonales().getNombre()).apellido(turno.getUsuario().getDatosPersonales().getApellido()).email(turno.getUsuario().getCorreo()).telefono(turno.getUsuario().getDatosPersonales().getTelefonoCelular()).build():null)
                 .build();
 
@@ -933,9 +937,9 @@ public class TurnosService {
             mapUser.put("nombreEmpresa", turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia());
             mapUser.put("lineaAtencion", turno.getAgenda().getLineaAtencion().getDescripccion());
             mapUser.put("direccion", direccion);
-            mapUser.put("urlCancelar", "http://localhost:5173/cancelarTurno?hash=" + turno.getUuid());
+            mapUser.put("urlCancelar", "https://time-less.online/cancelarTurno?hash=" + turno.getUuid());
 
-            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatio - "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString() ,mapUser);
+            NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.RECORDATORIO_TURNO,"Recordatorio:"+turno.getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.getFhInicio().toLocalDateTime().toLocalTime().toString() ,mapUser);
 
 
 
@@ -985,13 +989,13 @@ public class TurnosService {
         mapUser.put("lineaAtencion", turno.get().getAgenda().getLineaAtencion().getDescripccion());
         mapUser.put("direccion", direccion);
 
-        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,null ,mapUser);
+        NotificationMessage notificationMessageUsuario = new NotificationMessage(EmailTemplate.TURNO_CANCELADO,"Turno Cancelado: "+turno.get().getAgenda().getLineaAtencion().getEmpresa().getDatosFiscales().getNombreFantasia()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalDate().toString()+" "+turno.get().getFhInicio().toLocalDateTime().toLocalTime().toString()  ,mapUser);
 
 
 
         notificationService.sendNotificationUser(notificationMessageUsuario,  turno.get().getUsuario());
 
-
+        Utils.isertAuditoria(turno.get(), "USUARIO",auditoriaRepository );
         return ResponseEntity.ok(CancelarTurnoResponse.builder().mensaje("Turno cancelado exitosamente.").build());
 
 

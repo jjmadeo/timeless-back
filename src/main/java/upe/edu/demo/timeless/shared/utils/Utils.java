@@ -5,6 +5,10 @@ import org.apache.commons.math3.util.FastMath;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import upe.edu.demo.timeless.model.Auditoria;
+import upe.edu.demo.timeless.model.Turno;
+import upe.edu.demo.timeless.model.Usuario;
+import upe.edu.demo.timeless.repository.AuditoriaRepository;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
@@ -130,9 +134,6 @@ public class Utils {
         return EARTH_RADIUS * c; // Distancia en km
     }
 
-    public static void main(String[] args) {
-
-    }
 
     public static int obtenerDiaSemanaHoy() {
         // Obtiene la fecha actual
@@ -141,5 +142,25 @@ public class Utils {
         DayOfWeek dayOfWeek = fechaHoy.getDayOfWeek();
         return dayOfWeek.getValue();  // getValue() devuelve 1 para lunes y 7 para domingo
     }
+
+
+
+    public static void isertAuditoria(Turno turno, String canceledby, AuditoriaRepository auditoriaRepository) {
+
+        Usuario usuario = turno.getUsuario();
+        Usuario usuarioEmpresa = turno.getAgenda().getLineaAtencion().getEmpresa().getUsuario();
+
+        auditoriaRepository.save( Auditoria.builder()
+                .fhTurno(turno.getFhInicio().toLocalDateTime())
+                .usuario(usuario.getId())
+                .usuarioEmpresa(usuarioEmpresa.getId())
+                .canceledBy(canceledby)
+                .fhEvent(LocalDateTime.now())
+                .build());
+
+
+
+    }
+
 
 }

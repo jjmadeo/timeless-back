@@ -22,7 +22,7 @@ public class TurnosResponse {
     private Integer duracion;
     private Rubro rubro;
     private String nombreEmpresa;
-
+private  String lineaAtencionName;
     private Cordenadas cordenadas;
 
     private UsuarioTurnoOwner usuarioTurnoOwner;

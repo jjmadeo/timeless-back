@@ -11,10 +11,7 @@ import upe.edu.demo.timeless.controller.dto.request.UsuarioRequest;
 import upe.edu.demo.timeless.controller.dto.response.Error;
 import upe.edu.demo.timeless.controller.dto.response.*;
 import upe.edu.demo.timeless.model.*;
-import upe.edu.demo.timeless.repository.RubroRepository;
-import upe.edu.demo.timeless.repository.TipoDocumentoRepository;
-import upe.edu.demo.timeless.repository.TipoUsuarioRepository;
-import upe.edu.demo.timeless.repository.UsuarioRepository;
+import upe.edu.demo.timeless.repository.*;
 import upe.edu.demo.timeless.shared.utils.Utils;
 import upe.edu.demo.timeless.shared.utils.enums.TipoDniEnum;
 
@@ -30,18 +27,21 @@ public class StaticDataService {
     private final TipoUsuarioRepository tipoUsuarioRepository;
     private final TipoDocumentoRepository tipoDocumentoRepository;
     private final RubroRepository rubroRepository;
+    private final ConfigSistemaRepository configSistemaRepository;
 
     public ResponseEntity<StaticDataResponse> getStaticData() {
 
         List<TipoUsuario> tipoUsuarios = (List<TipoUsuario>) tipoUsuarioRepository.findAll();
         List<TipoDocumento> tipoDocumentos = (List<TipoDocumento>) tipoDocumentoRepository.findAll();
         List<Rubro> rubros = (List<Rubro>) rubroRepository.findAll();
+        List<ConfigSistema> configSistemas = (List<ConfigSistema>) configSistemaRepository.findAll();
 
 
         return ResponseEntity.ok(StaticDataResponse.builder()
                 .rubro(rubros)
                 .tipoDocumentos(tipoDocumentos)
                 .tipoUsuarios(tipoUsuarios)
+                .configsGlobal(configSistemas)
                 .build());
     }
 }
